@@ -18,6 +18,8 @@ python external/hovernet/run_infer.py \
     --gpu='0' \
     --nr_types=6 \
     --type_info_path=external/hovernet/type_info.json \
+    --size_px=40 \
+    --size_um=10 \
     --batch_size=16 \
     --model_mode=fast \
     --model_path=/cluster/CBIO/data1/lgortana/pretrained/seg_classif/hovernet_fast_pannuke_type_tf2pytorch.tar \

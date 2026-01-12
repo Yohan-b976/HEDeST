@@ -14,6 +14,9 @@ Options:
   --type_info_path=<path>     Path to a json define mapping between type id, type name,
                               and expected overlaid color. [default: '']
 
+  --size_px=<n>           Output tile size in pixels. [default: 64]
+  --size_um=<f>           Crop size in micrometers. [default: ]
+
   --model_path=<path>         Path to saved checkpoint.
   --model_mode=<mode>         Original HoVer-Net or the reduced version used PanNuke and MoNuSAC,
                               'original' or 'fast'. [default: fast]
@@ -118,6 +121,12 @@ if __name__ == "__main__":
     log_info("Detect #GPUS: %d" % nr_gpus)
 
     args = {k.replace("--", ""): v for k, v in args.items()}
+
+    size_px = int(args.get("size_px", 64))
+
+    size_um = args.get("size_um")
+    size_um = float(size_um) if size_um not in (None, "") else None
+
     sub_args = {k.replace("--", ""): v for k, v in sub_args.items()}
     if args["model_path"] == None:
         raise Exception("A model path must be supplied as an argument with --model_path.")
@@ -227,6 +236,8 @@ if __name__ == "__main__":
             image_dict = extract_images_hn(
                 image_path=image_path,
                 json_path=json_path,
+                size_px=size_px,
+                size_um=size_um,
                 save_dict=os.path.join(run_args["output_dir"], "image_dict.pt"),
             )
             logging.info("-> Image extraction completed successfully.")
