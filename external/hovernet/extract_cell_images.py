@@ -12,7 +12,6 @@ import torch
 from loguru import logger
 from tqdm import tqdm
 from hedest.config import TqdmToLogger
-from get_tiff_resolution import extract_mpp
 
 tqdm_out = TqdmToLogger(logger, level="INFO")
 
@@ -23,6 +22,7 @@ def extract_images_hn(
     level: int = 0,
     size_px: int = 64,
     size_um: Optional[float] = None,
+    mpp: Optional[float] = None,
     dict_types: Optional[Dict[int, str]] = None,
     save_images: Optional[str] = None,
     save_dict: Optional[str] = None,
@@ -36,6 +36,7 @@ def extract_images_hn(
         level: Level of the WSI to extract the tiles.
         size_px: Size of the tile in pixels (used if size_um is None).
         size_um: Size of the tile in micrometers.
+        mpp: Resolution of the original WSI (Microns per pixel).
         dict_types: Optional dictionary mapping cell types to names.
         save_images: Path to save extracted image tiles.
         save_dict: Path to save the dictionary of extracted tiles.
@@ -47,7 +48,8 @@ def extract_images_hn(
     slide = openslide.open_slide(image_path)
 
     if size_um is not None:
-        mpp = extract_mpp(image_path)
+        if mpp is None:
+            raise ValueError("If size_um is provided, `mpp` must also be provided.")
         crop_px = int(round(size_um / mpp))
     else:
         crop_px = size_px
