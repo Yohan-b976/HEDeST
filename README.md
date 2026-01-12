@@ -88,3 +88,18 @@ Also, you can get the Openslide's error ``openslide.lowlevel.OpenSlideUnsupporte
 ```
 vips tiffsave your_file.tif output-pyramidal.tif --tile --pyramid --bigtiff --compression jpeg --Q 90
 ```
+
+## Preprint
+https://www.biorxiv.org/content/10.64898/2026.01.06.697922v1
+
+```
+@article{gortana_hedest_2026,
+	title = {{HEDeST}: {An} {Integrative} {Approach} to {Enhance} {Spatial} {Transcriptomic} {Deconvolution} with {Histology}},
+	doi = {10.64898/2026.01.06.697922},
+	journal = {bioRxiv},
+	author = {Gortana, Luca and Chadoutaud, Loic and Bourgade, Raphael and Barillot, Emmanuel and Walter, Thomas},
+	year = {2026}
+}
+```
+## Credits
+We would like to thank the authors of HoVerNet (https://github.com/vqdang/hover_net) and MoCo-v3 (https://github.com/facebookresearch/moco-v3), whose work we adapted for this project.
