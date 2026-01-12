@@ -15,7 +15,7 @@ run_*
 !run_infer.sh
 !run_train.sh
 !run_utils
-!run_desc
+!run_desc.py
 !run_infer.py
 !run_mask.py
 !run_tile.sh
