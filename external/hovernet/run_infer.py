@@ -16,6 +16,7 @@ Options:
 
   --size_px=<n>           Output tile size in pixels. [default: 64]
   --size_um=<f>           Crop size in micrometers. [default: ]
+  --mpp=<f>               Resolution of the original WSI (Microns per pixel). [default: ]
 
   --model_path=<path>         Path to saved checkpoint.
   --model_mode=<mode>         Original HoVer-Net or the reduced version used PanNuke and MoNuSAC,
@@ -126,6 +127,17 @@ if __name__ == "__main__":
 
     size_um = args.get("size_um")
     size_um = float(size_um) if size_um not in (None, "") else None
+
+    mpp = args.get("mpp")
+    mpp = float(mpp) if mpp not in (None, "") else None
+
+    # --- Consistency check ---
+    if size_um is not None and mpp is None:
+        raise ValueError(
+            "Error: You specified --size_um but did not provide --mpp. "
+            "Microns per pixel (mpp) is required to convert size_um into pixels. "
+            "Segmentation will not run until both are provided."
+        )
 
     sub_args = {k.replace("--", ""): v for k, v in sub_args.items()}
     if args["model_path"] == None:
@@ -238,6 +250,7 @@ if __name__ == "__main__":
                 json_path=json_path,
                 size_px=size_px,
                 size_um=size_um,
+                mpp=mpp,
                 save_dict=os.path.join(run_args["output_dir"], "image_dict.pt"),
             )
             logging.info("-> Image extraction completed successfully.")
