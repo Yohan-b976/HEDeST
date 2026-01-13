@@ -4,6 +4,7 @@ __pycache*
 
 benchmark/results
 case_study/figures
+external/LEMON
 log
 models
 references/prior_proportions_idea.pdf
