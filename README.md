@@ -11,8 +11,8 @@
 ## Installation
 To create your conda environment and install the requirements with ``pip``
 ```
-conda create -y -n name-env python=3.9
-conda activate name-env
+conda create -y -n hedest-env python=3.9
+conda activate hedest-env
 pip install -r requirements.txt
 ```
 To install pytorch, torch-scatter and tensorboard
