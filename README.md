@@ -21,7 +21,7 @@ conda env config vars set PYTHONPATH=$PYTHONPATH:$CODEPATH:$CODEPATH/external:$C
 conda deactivate
 conda activate hedest-env
 ```
-To install pytorch, torch-scatter and tensorboard
+To install pytorch and torch-scatter
 ```
 pip install torch==1.13.1+cu116 torchvision==0.14.1+cu116 --extra-index-url https://download.pytorch.org/whl/cu116
 wget https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_scatter-2.1.1%2Bpt113cu116-cp39-cp39-linux_x86_64.whl
