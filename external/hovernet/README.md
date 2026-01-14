@@ -16,6 +16,15 @@ Links to the checkpoints can be found in the inference description below.
 
 ![](docs/diagram.png)
 
+## Adaptation
+This repository has been adapted from the official HoVerNet repository. The following things have been changed :
+
+- We added functions to replace the automatic mask generator (``mask_utils.py``, ``run_mask.py``),
+- We changed the ``run_infer.py`` file to make the cell ids in the final json file range from 0 to n_cells,
+- We also adapted the ``run_infer.py`` so it could edxtract cell crops thanks to ``extract_cell_images.py``,
+- We added the file ``get_tiff_resolution.py`` that enables you to get the microns per pixel metric (mpp) for any tiff file,
+- Because of those changes, the requirements have been slightly changed.
+
 ## Set Up Environment
 
 ```
