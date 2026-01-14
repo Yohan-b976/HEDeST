@@ -7,7 +7,6 @@ import torch
 import torch.optim as optim
 from loguru import logger
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
 
 from hedest.analysis.plots import plot_history
 from hedest.model.cell_classifier import CellClassifier
@@ -28,7 +27,6 @@ class ModelTrainer:
         alpha: Weight parameter for loss components.
         num_epochs: Number of training epochs.
         out_dir: Directory to save model checkpoints and results.
-        tb_dir: Directory for TensorBoard logs.
         rs: Random seed for reproducibility.
     """
 
@@ -43,7 +41,6 @@ class ModelTrainer:
         alpha: float = 0.0,
         num_epochs: int = 60,
         out_dir: str = "results",
-        tb_dir: str = "runs",
         rs: int = 42,
     ) -> None:
 
@@ -57,7 +54,6 @@ class ModelTrainer:
         self.alpha = alpha
         self.num_epochs = num_epochs
         self.out_dir = out_dir
-        self.tb_dir = tb_dir
         self.rs = rs
 
         self.best_val_loss = float("inf")
@@ -98,9 +94,6 @@ class ModelTrainer:
 
         # Prepare for training
         self.prepare_training()
-
-        tb_file = os.path.join(self.tb_dir, os.path.basename(self.out_dir))
-        writer = SummaryWriter(tb_file)
 
         # Begin training
         for epoch in range(self.num_epochs):
@@ -144,14 +137,6 @@ class ModelTrainer:
 
             torch.cuda.empty_cache()
 
-            # TensorBoard logging
-            writer.add_scalar("Loss/Train", train_loss, epoch + 1)
-            writer.add_scalar("Loss/Val", val_loss, epoch + 1)
-            writer.add_scalar("Loss/Train_Half1", train_loss_half1, epoch + 1)
-            writer.add_scalar("Loss/Train_Half2", train_loss_half2, epoch + 1)
-            writer.add_scalar("Loss/Val_Half1", val_loss_half1, epoch + 1)
-            writer.add_scalar("Loss/Val_Half2", val_loss_half2, epoch + 1)
-
             self.history_train.append(train_loss)
             self.history_val.append(val_loss)
 
@@ -163,8 +148,6 @@ class ModelTrainer:
                 logger.info(
                     f"-> Validation loss improved. Saving best model at {self.best_model_path} (epoch {epoch + 1})."
                 )
-
-        writer.close()
 
         logger.info("Training complete. Evaluating on test set...")
 

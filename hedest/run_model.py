@@ -46,7 +46,6 @@ def run_hedest(
     train_size: float = 0.5,
     val_size: float = 0.25,
     out_dir: str = "results",
-    tb_dir: str = "runs",
     rs: int = 42,
 ) -> None:
     """
@@ -70,7 +69,6 @@ def run_hedest(
         train_size: Proportion of data used for training.
         val_size: Proportion of data used for validation.
         out_dir: Directory to save results.
-        tb_dir: Directory for TensorBoard logs.
         rs: Random seed for reproducibility.
     """
 
@@ -131,7 +129,6 @@ def run_hedest(
         alpha=alpha,
         num_epochs=epochs,
         out_dir=out_dir,
-        tb_dir=tb_dir,
         rs=rs,
     )
 
