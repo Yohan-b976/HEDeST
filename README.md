@@ -11,9 +11,15 @@
 ## Installation
 To create your conda environment and install the requirements with ``pip``
 ```
+git clone git@github.com:lucagortana/HEDeST.git
+cd HEDeST
 conda create -y -n hedest-env python=3.9
 conda activate hedest-env
 pip install -r requirements.txt
+CODEPATH=$(realpath .)
+conda env config vars set PYTHONPATH=$PYTHONPATH:$CODEPATH:$CODEPATH/external:$CODEPATH/external/hovernet:$CODEPATH/external/mocov3
+conda deactivate
+conda activate hedest-env
 ```
 To install pytorch, torch-scatter and tensorboard
 ```
