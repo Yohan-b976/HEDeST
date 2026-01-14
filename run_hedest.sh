@@ -22,7 +22,7 @@ for seed in 42 43 44 45 46; do
     --path-st-adata /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/ST/ \
     --adata-name Visium_FFPE_Human_Breast_Cancer \
     --spot-dict-file /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/spot_dict.json \
-    --model-name quick \
+    --model-name default \
     --batch-size 64 \
     --lr 3e-4 \
     --divergence l2 \
