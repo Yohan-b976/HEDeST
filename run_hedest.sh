@@ -32,6 +32,5 @@ for seed in 42 43 44 45 46; do
     --train-size 0.8 \
     --val-size 0.1 \
     --out-dir models/Breast_cancer_FFPE/DestVI_2000_hvg_squash_06_02_no_endo/model_quick_alpha_0.0_lr_0.0003_divergence_l2_beta_0.0_seed_${seed} \
-    --tb-dir models/TBruns \
     --rs $seed
 done
