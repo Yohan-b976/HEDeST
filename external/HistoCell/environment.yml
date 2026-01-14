@@ -1,4 +1,4 @@
-name: histocell
+name: histocell-env
 channels:
   - defaults
   - conda-forge
