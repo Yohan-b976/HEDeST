@@ -1,4 +1,4 @@
-name: ssl-env
+name: mocov3-env
 channels:
   - pytorch
   - nvidia
