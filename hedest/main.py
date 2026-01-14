@@ -58,7 +58,6 @@ def main(
     train_size: float = typer.Option(0.5, help="Training set size as a fraction."),
     val_size: float = typer.Option(0.25, help="Validation set size as a fraction."),
     out_dir: str = typer.Option("results", help="Output directory."),
-    tb_dir: str = typer.Option("runs", help="Tensorboard directory."),
     rs: int = typer.Option(42, help="Random seed"),
 ):
 
@@ -167,7 +166,6 @@ def main(
         train_size=train_size,
         val_size=val_size,
         out_dir=out_dir,
-        tb_dir=tb_dir,
         rs=rs,
     )
     TOTAL_TIME = format_time(time.time() - MAIN_START)
