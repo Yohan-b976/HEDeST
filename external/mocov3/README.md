@@ -5,6 +5,13 @@ This is a PyTorch implementation of [MoCo v3](https://arxiv.org/abs/2104.02057) 
 
 The original MoCo v3 was implemented in Tensorflow and run in TPUs. This repo re-implements in PyTorch and GPUs. Despite the library and numerical differences, this repo reproduces the results and observations in the paper.
 
+### Adaptation
+This repository has been adapted from the official Moco-V3 repository. The following things have been changed :
+
+- We added a series of utils files to adapt moco-v3 to our data (``data_utils.py``, ``dataset_utils``, ...),
+- We added a ``run_moco.py`` and a ``run_infer.py`` files to run the full pipeline (training + inference) on our data,
+- We added an ``environment.yml``.
+
 ### Main Results
 
 The following results are based on ImageNet-1k self-supervised pre-training, followed by ImageNet-1k supervised training for linear evaluation or end-to-end fine-tuning. All results in these tables are based on a batch size of 4096.
