@@ -56,24 +56,24 @@ wsi_cli = """
 Arguments for processing wsi
 
 usage:
-    wsi (--input_dir=<path>) (--output_dir=<path>) [--proc_mag=<n>]\
-        [--cache_path=<path>] [--input_mask_dir=<path>] \
-        [--ambiguous_size=<n>] [--chunk_shape=<n>] [--tile_shape=<n>] \
-        [--save_thumb] [--save_mask]
+    wsi (--input_dir=<path>) (--output_dir=<path>) [--image_dict_path=<path>] [--proc_mag=<n>]\
+        [--cache_path=<path>] [--input_mask_dir=<path>] [--ambiguous_size=<n>] \
+        [--chunk_shape=<n>] [--tile_shape=<n>] [--save_thumb] [--save_mask] \
 
 options:
-    --input_dir=<path>      Path to input data directory. Assumes the files are not nested within directory.
-    --output_dir=<path>     Path to output directory.
-    --cache_path=<path>     Path for cache. Should be placed on SSD with at least 100GB. [default: cache]
-    --mask_dir=<path>       Path to directory containing tissue masks.
-                            Should have the same name as corresponding WSIs. [default: '']
+    --input_dir=<path>       Path to input data directory. Assumes the files are not nested within directory.
+    --output_dir=<path>      Path to output directory.
+    --image_dict_path=<path> Path to save extracted image dictionary. [default: '']
+    --cache_path=<path>      Path for cache. Should be placed on SSD with at least 100GB. [default: cache]
+    --mask_dir=<path>        Path to directory containing tissue masks.
+                             Should have the same name as corresponding WSIs. [default: '']
 
-    --proc_mag=<n>          Magnification level (objective power) used for WSI processing. [default: 40]
-    --ambiguous_size=<int>  Define ambiguous region along tiling grid to perform re-post processing. [default: 128]
-    --chunk_shape=<n>       Shape of chunk for processing. [default: 10000]
-    --tile_shape=<n>        Shape of tiles for processing. [default: 2048]
-    --save_thumb            To save thumb. [default: False]
-    --save_mask             To save mask. [default: False]
+    --proc_mag=<n>           Magnification level (objective power) used for WSI processing. [default: 40]
+    --ambiguous_size=<int>   Define ambiguous region along tiling grid to perform re-post processing. [default: 128]
+    --chunk_shape=<n>        Shape of chunk for processing. [default: 10000]
+    --tile_shape=<n>         Shape of tiles for processing. [default: 2048]
+    --save_thumb             To save thumb. [default: False]
+    --save_mask              To save mask. [default: False]
 """
 
 import torch
@@ -186,6 +186,7 @@ if __name__ == "__main__":
             {
                 "input_dir": sub_args["input_dir"],
                 "output_dir": sub_args["output_dir"],
+                "image_dict_path": sub_args["image_dict_path"],
                 "input_mask_dir": sub_args["input_mask_dir"],
                 "cache_path": sub_args["cache_path"],
                 "proc_mag": int(sub_args["proc_mag"]),
@@ -251,7 +252,7 @@ if __name__ == "__main__":
                 size_px=size_px,
                 size_um=size_um,
                 mpp=mpp,
-                save_dict=os.path.join(run_args["output_dir"], "image_dict.pt"),
+                save_dict=os.path.join(run_args["image_dict_path"]),
             )
             logging.info("-> Image extraction completed successfully.")
 

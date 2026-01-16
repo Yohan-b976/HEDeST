@@ -21,8 +21,12 @@ python external/hovernet/run_infer.py \
     --batch_size=16 \
     --model_mode=fast \
     --model_path=/cluster/CBIO/data1/lgortana/pretrained/seg_classif/hovernet_fast_pannuke_type_tf2pytorch.tar \
+    --size_px=40 \
+    --size_um=10 \
+    --mpp=0.364 \
     wsi \
-    --input_dir=/cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/pyr_tif/ \
-    --output_dir=/cluster/CBIO/data1/lgortana/test/seg/ \
-    --input_mask_dir=/cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/mask/lvl3/ \
+    --input_dir=/cluster/CBIO/data1/lgortana/Xenium_FFPE_Human_Breast_Cancer_Rep1/pyr_tif/ \
+    --output_dir=/cluster/CBIO/data1/lgortana/Xenium_FFPE_Human_Breast_Cancer_Rep1/seg_json/ \
+    --image_dict_path=/cluster/CBIO/data1/lgortana/Xenium_FFPE_Human_Breast_Cancer_Rep1/image_dict_40.pt \
+    --input_mask_dir=/cluster/CBIO/data1/lgortana/Xenium_FFPE_Human_Breast_Cancer_Rep1/mask/lvl3/ \
     --cache_path=/cluster/CBIO/data1/lgortana/cache
