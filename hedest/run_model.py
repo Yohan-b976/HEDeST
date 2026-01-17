@@ -13,7 +13,6 @@ from anndata import AnnData
 from loguru import logger
 from torch import optim
 
-from hedest.analysis.pred_analyzer import PredAnalyzer
 from hedest.dataset import SpotDataset
 from hedest.dataset import SpotEmbedDataset
 from hedest.dataset_utils import custom_collate
@@ -27,6 +26,8 @@ from hedest.trainer import ModelTrainer
 from hedest.utils import format_time
 from hedest.utils import set_seed
 
+# from hedest.analysis.pred_analyzer import PredAnalyzer
+
 
 def run_hedest(
     image_dict: Dict[str, torch.Tensor],
@@ -37,6 +38,8 @@ def run_hedest(
     adata_name: Optional[str] = None,
     model_name: str = "default",
     hidden_dims: List[int] = [512, 256],
+    norm: bool = True,
+    dropout: float = 0.0,
     batch_size: int = 64,
     lr: float = 0.0001,
     divergence: str = "l2",
@@ -60,6 +63,8 @@ def run_hedest(
         adata_name: Name of the sample in the AnnData object.
         model_name: Name of the model to use.
         hidden_dims: List of hidden layer dimensions.
+        norm: Whether to add a LayerNorm layer.
+        dropout: Dropout rate.
         batch_size: Batch size for data loaders.
         lr: Learning rate for the optimizer.
         divergence: Type of divergence loss to use ("l1", "l2", "kl", "rot").
@@ -112,7 +117,14 @@ def run_hedest(
     ct_list = list(spot_prop_df.columns)
 
     # Model initialization
-    model = CellClassifier(model_name=model_name, num_classes=num_classes, hidden_dims=hidden_dims, device=device)
+    model = CellClassifier(
+        model_name=model_name,
+        num_classes=num_classes,
+        hidden_dims=hidden_dims,
+        norm=norm,
+        dropout=dropout,
+        device=device,
+    )
     model = model.to(device)
     logger.info(f"-> {num_classes} classes detected.")
 
@@ -142,7 +154,12 @@ def run_hedest(
     # Predict on the whole slide
     logger.info("Starting prediction on the whole slide...")
     model4pred_best = CellClassifier(
-        model_name=model_name, num_classes=num_classes, hidden_dims=hidden_dims, device=device
+        model_name=model_name,
+        num_classes=num_classes,
+        hidden_dims=hidden_dims,
+        norm=norm,
+        dropout=dropout,
+        device=device,
     )
     model4pred_best.load_state_dict(torch.load(trainer.best_model_path))
     cell_prob_best = predict_slide(model4pred_best, image_dict, ct_list)
@@ -178,6 +195,8 @@ def run_hedest(
     model_info = {
         "model_name": model_name,
         "hidden_dims": hidden_dims,
+        "norm": norm,
+        "dropout": dropout,
         "spot_dict": spot_dict,
         "train_spot_dict": train_spot_dict,
         "proportions": spot_prop_df,
@@ -193,20 +212,20 @@ def run_hedest(
     with open(info_dir, "wb") as f:
         pickle.dump(model_info, f)
 
-    # Extract and save statistics
-    logger.info("Extracting and saving statistics...")
+    # # Extract and save statistics
+    # logger.info("Extracting and saving statistics...")
 
-    stats_best_predicted = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="predicted")
-    stats_best_all = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="all")
+    # stats_best_predicted = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="predicted")
+    # stats_best_all = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="all")
 
-    stats_best_adj_predicted = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="predicted")
-    stats_best_adj_all = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="all")
+    # stats_best_adj_predicted = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="predicted")
+    # stats_best_adj_all = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="all")
 
-    with pd.ExcelWriter(os.path.join(out_dir, "stats.xlsx")) as writer:
-        stats_best_predicted.to_excel(writer, sheet_name="best_predicted", index=False)
-        stats_best_all.to_excel(writer, sheet_name="best_all", index=False)
-        stats_best_adj_predicted.to_excel(writer, sheet_name="best_adj_predicted", index=False)
-        stats_best_adj_all.to_excel(writer, sheet_name="best_adj_all", index=False)
+    # with pd.ExcelWriter(os.path.join(out_dir, "stats.xlsx")) as writer:
+    #     stats_best_predicted.to_excel(writer, sheet_name="best_predicted", index=False)
+    #     stats_best_all.to_excel(writer, sheet_name="best_all", index=False)
+    #     stats_best_adj_predicted.to_excel(writer, sheet_name="best_adj_predicted", index=False)
+    #     stats_best_adj_all.to_excel(writer, sheet_name="best_adj_all", index=False)
 
     logger.info("Secondary deconvolution process completed successfully.")
     logger.info(f"Training time: {TRAIN_TIME}")

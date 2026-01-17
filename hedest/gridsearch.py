@@ -17,6 +17,9 @@ def run_experiment(
     adata_name: str,
     spot_dict_file: str,
     model_name: str,
+    hidden_dim: str,
+    norm: bool,
+    dropout: float,
     batch_size: int,
     alpha: float,
     beta: float,
@@ -36,6 +39,9 @@ def run_experiment(
         adata_name: Name of the AnnData object.
         spot_dict_file: Path to the spot dictionary file.
         model_name: Name of the model to use.
+        hidden_dim: Hidden dimensions for the model.
+        norm: Whether to add a LayerNorm layer.
+        dropout: Dropout rate.
         batch_size: Batch size for training.
         alpha: Regularization parameter for the model.
         beta: Regularization parameter for bayesian adjustment.
@@ -47,7 +53,17 @@ def run_experiment(
 
     config_out_dir = os.path.join(
         out_dir,
-        f"model_{model_name}_alpha_{alpha}_lr_{lr}_divergence_{divergence}_beta_{beta}_seed_{seed}",
+        (
+            f"model_{model_name}_"
+            f"hidden_dim_{hidden_dim.replace(',', '-')}_"
+            f"norm_{norm}_"
+            f"dropout_{dropout}_"
+            f"alpha_{alpha}_"
+            f"lr_{lr}_"
+            f"divergence_{divergence}_"
+            f"beta_{beta}_"
+            f"seed_{seed}"
+        ),
     )
     os.makedirs(config_out_dir, exist_ok=True)
 
@@ -67,6 +83,12 @@ def run_experiment(
         spot_dict_file,
         "--model-name",
         model_name,
+        "--hidden-dims",
+        hidden_dim,
+        "--norm",
+        str(norm),
+        "--dropout",
+        str(dropout),
         "--batch-size",
         str(batch_size),
         "--lr",
@@ -98,6 +120,9 @@ def main_simulation(
     adata_name: str,
     spot_dict_file: str,
     models: List[str],
+    hidden_dims: List[str],
+    norms: List[bool],
+    dropouts: List[float],
     alphas: List[float],
     betas: List[float],
     learning_rates: List[float],
@@ -117,6 +142,9 @@ def main_simulation(
         adata_name: Name of the AnnData object.
         spot_dict_file: Path to the spot dictionary file.
         models: List of model names.
+        hidden_dims: List of hidden dimensions.
+        norms: List of normalization options.
+        dropouts: List of dropout rates.
         alphas: List of alpha values.
         betas: List of beta values.
         learning_rates: List of learning rates.
@@ -133,6 +161,9 @@ def main_simulation(
     logger.info(f"AnnData name: {adata_name}")
     logger.info(f"Spot dictionary file path: {spot_dict_file}")
     logger.info(f"Models: {models}")
+    logger.info(f"Hidden dimensions: {hidden_dims}")
+    logger.info(f"Normalization options: {norms}")
+    logger.info(f"Dropout rates: {dropouts}")
     logger.info(f"Alpha values: {alphas}")
     logger.info(f"Beta values: {betas}")
     logger.info(f"Learning rates: {learning_rates}")
@@ -140,9 +171,11 @@ def main_simulation(
     logger.info(f"Random seeds: {seeds}")
     logger.info(f"Output directory: {out_dir}\n")
 
-    combinations = list(itertools.product(models, alphas, learning_rates, divergences, betas))
+    combinations = list(
+        itertools.product(models, hidden_dims, norms, dropouts, alphas, learning_rates, divergences, betas)
+    )
 
-    for model_name, alpha, lr, divergence, beta in combinations:
+    for model_name, hidden_dim, norm, dropout, alpha, lr, divergence, beta in combinations:
         for seed in seeds:
             run_experiment(
                 image_dict_path,
@@ -152,6 +185,9 @@ def main_simulation(
                 adata_name,
                 spot_dict_file,
                 model_name,
+                hidden_dim,
+                norm,
+                dropout,
                 batch_size,
                 alpha,
                 beta,
@@ -175,6 +211,16 @@ if __name__ == "__main__":
 
     # List arguments
     parser.add_argument("--models", nargs="+", type=str, required=True, help="List of model names")
+    parser.add_argument("--hidden_dims", nargs="+", type=str, required=True, help="List of hidden dimensions")
+    parser.add_argument(
+        "--norm_options",
+        nargs="+",
+        type=int,
+        required=True,
+        choices=[0, 1],
+        help="List of norm options (0 for False, 1 for True)",
+    )
+    parser.add_argument("--dropouts", nargs="+", type=float, required=True, help="List of dropout rates")
     parser.add_argument("--alphas", nargs="+", type=float, required=True, help="List of alpha values")
     parser.add_argument("--betas", nargs="+", type=float, required=True, help="List of beta values")
     parser.add_argument("--learning_rates", nargs="+", type=float, required=True, help="List of learning rates")
@@ -186,6 +232,7 @@ if __name__ == "__main__":
     parser.add_argument("--out_dir", type=str, required=True, help="Output directory path")
 
     args = parser.parse_args()
+    norms = [bool(n) for n in args.norm_options]
 
     main_simulation(
         args.image_dict_path,
@@ -195,6 +242,9 @@ if __name__ == "__main__":
         args.adata_name,
         args.spot_dict_file,
         args.models,
+        args.hidden_dims,
+        norms,
+        args.dropouts,
         args.alphas,
         args.betas,
         args.learning_rates,

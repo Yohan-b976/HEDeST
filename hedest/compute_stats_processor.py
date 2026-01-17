@@ -26,7 +26,7 @@ def process_config(
     Processes a single configuration (all seeds) and returns results for all metric keys.
 
     Args:
-        config: Configuration tuple (model_name, alpha, lr, divergence, beta).
+        config: Configuration tuple (model_name, hidden_dim, norm, dropout, alpha, lr, divergence, beta).
         runs: List of tuples (folder_name, seed) for this configuration.
         sim_folder: Path to the simulation folder.
         ground_truth: DataFrame containing ground truth labels.
@@ -44,10 +44,10 @@ def process_config(
     profiler = Profiler()
     profiler.start()
 
-    model_name, alpha, lr, divergence, beta = config
+    model_name, hidden_dim, norm, dropout, alpha, lr, divergence, beta = config
 
-    text1 = f"[START] Model: {model_name}, alpha: {alpha}, lr: {lr},"
-    text2 = f"divergence: {divergence}, beta: {beta}"
+    text1 = f"[START] Model: {model_name}, hidden_dim: {hidden_dim}, norm: {norm}, dropout: {dropout},"
+    text2 = f"alpha: {alpha}, lr: {lr}, divergence: {divergence}, beta: {beta}"
     logger.info(f"{text1} {text2}")
 
     metrics_lists = {
@@ -139,6 +139,9 @@ def process_config(
         mean_vals, ci_vals = compute_statistics(metric_list)
         row = {
             "model": model_name,
+            "hidden_dim": hidden_dim,
+            "norm": norm,
+            "dropout": dropout,
             "alpha": alpha,
             "lr": lr,
             "divergence": divergence,
@@ -183,7 +186,8 @@ def extract_stats(
     # Group folders by config (excluding seed)
     config_to_seeds = defaultdict(list)
     pattern = re.compile(
-        r"model_(?P<model>[^_]+)_alpha_(?P<alpha>[^_]+)_lr_(?P<lr>[^_]+)_"
+        r"model_(?P<model>[^_]+)_hidden_dim_(?P<hidden_dim>[^_]+)_norm_(?P<norm>[^_]+)_"
+        r"dropout_(?P<dropout>[^_]+)_alpha_(?P<alpha>[^_]+)_lr_(?P<lr>[^_]+)_"
         r"divergence_(?P<divergence>[^_]+)_beta_(?P<beta>[^_]+)_seed_(?P<seed>\d+)"
     )
 
@@ -192,6 +196,9 @@ def extract_stats(
         if match:
             config = (
                 match.group("model"),
+                match.group("hidden_dim"),
+                match.group("norm"),
+                match.group("dropout"),
                 match.group("alpha"),
                 match.group("lr"),
                 match.group("divergence"),
@@ -210,7 +217,7 @@ def extract_stats(
     per_run_by_key = defaultdict(list)
 
     for config, summary_rows, metrics_lists in processed:
-        model, alpha, lr, divergence, beta = config
+        model, hidden_dim, norm, dropout, alpha, lr, divergence, beta = config
 
         for key, row in summary_rows:
             summary_by_key[key].append(row)
@@ -219,6 +226,9 @@ def extract_stats(
             for metric in metric_dicts:
                 row = {
                     "model": model,
+                    "hidden_dim": hidden_dim,
+                    "norm": norm,
+                    "dropout": dropout,
                     "alpha": alpha,
                     "lr": lr,
                     "divergence": divergence,
@@ -229,8 +239,12 @@ def extract_stats(
 
     # Write one Excel file per metric key
     for key in summary_by_key:
-        summary_df = pd.DataFrame(summary_by_key[key]).sort_values(by=["model", "alpha", "lr", "divergence", "beta"])
-        per_run_df = pd.DataFrame(per_run_by_key[key]).sort_values(by=["model", "alpha", "lr", "divergence", "beta"])
+        summary_df = pd.DataFrame(summary_by_key[key]).sort_values(
+            by=["model", "hidden_dim", "norm", "dropout", "alpha", "lr", "divergence", "beta"]
+        )
+        per_run_df = pd.DataFrame(per_run_by_key[key]).sort_values(
+            by=["model", "hidden_dim", "norm", "dropout", "alpha", "lr", "divergence", "beta"]
+        )
 
         output_path = os.path.join(sim_folder, f"metrics_{key}.xlsx")
         with pd.ExcelWriter(output_path, engine="xlsxwriter") as writer:

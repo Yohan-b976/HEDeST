@@ -1,8 +1,8 @@
 #!/bin/bash
 
 python3 external/LEMON/run_lemon.py \
-  --image-dict /home/luca/Documents/data/Visium_FFPE_Human_Breast_Cancer/seg_40um/image_dict.pt \
-  --output-path /home/luca/Documents/data/Visium_FFPE_Human_Breast_Cancer/seg_40um/lemon_embeddings.pt \
+  --image-dict /home/luca/Documents/data/Visium_FFPE_Human_Breast_Cancer/image_dict_40.pt \
+  --output-path /home/luca/Documents/data/Visium_FFPE_Human_Breast_Cancer/lemon_embeddings.pt \
   --device cpu \
   --model-name vits8 \
   --cell-size 40 \

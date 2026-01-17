@@ -58,6 +58,8 @@ class CellClassifier(BaseCellClassifier):
         model_name: str,
         num_classes: int,
         hidden_dims: list = [512, 256],
+        norm: bool = True,
+        dropout: float = 0.0,
         device: torch.device = torch.device("cpu"),
     ):
         """
@@ -68,20 +70,28 @@ class CellClassifier(BaseCellClassifier):
                               or "resnet18"...).
             num_classes (int): Number of output classes.
             hidden_dims (list): List of hidden dimensions for the fully connected layers.
+            norm (bool): Whether to add a LayerNorm layer.
+            dropout (float): Dropout rate.
             device (torch.device): Device to run the model on.
         """
 
         super().__init__(num_classes, device)
         self.model_name = model_name
         self.hidden_dims = hidden_dims
-        self.size_edge = 64
+        self.norm = norm
+        self.dropout = dropout
+        self.size_edge = 40
 
         if self.model_name == "default":
             self.backbone = nn.Sequential()
-            input_dim = 2048
+            input_dim = 384  # Hardcoded
             for i, hidden_dim in enumerate(self.hidden_dims):
                 self.backbone.add_module(f"fc_{i}", nn.Linear(input_dim, hidden_dim))
+                if self.norm:
+                    self.backbone.add_module(f"layernorm_{i}", nn.LayerNorm(hidden_dim))
                 self.backbone.add_module(f"relu_{i}", nn.ReLU())
+                if self.dropout > 0.0:
+                    self.backbone.add_module(f"dropout_{i}", nn.Dropout(self.dropout))
                 input_dim = hidden_dim
 
             self.backbone.add_module("final", nn.Linear(input_dim, num_classes))

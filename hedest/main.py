@@ -47,11 +47,11 @@ def main(
     spot_dict_file: Optional[str] = typer.Option(None, help="Path to the spot-to-cell json file."),
     model_name: str = typer.Option("default", help="Type of model. Can be 'default', 'convnet', or 'resnet18'."),
     hidden_dims: str = typer.Option("512,256", help="Hidden dimensions for the model (comma-separated)."),
+    norm: bool = typer.Option(True, help="Whether to add a LayerNorm layer."),
+    dropout: float = typer.Option(0.0, help="Dropout rate."),
     batch_size: int = typer.Option(64, help="Batch size for model training."),
     lr: float = typer.Option(0.0001, help="Learning rate."),
-    divergence: str = typer.Option(
-        "l2", help="Metric to use for divergence computation. Can be 'l1', 'l2', 'kl', or 'rot'."
-    ),
+    divergence: str = typer.Option("l2", help="Metric to use for divergence computation. Can be 'l1', 'l2' or 'kl'."),
     alpha: float = typer.Option(0.0, help="Alpha parameter for loss function."),
     beta: float = typer.Option(0.0, help="Beta parameter for bayesian adjustment."),
     epochs: int = typer.Option(60, help="Number of training epochs."),
@@ -135,6 +135,8 @@ def main(
     logger.info(f"Image size: {size}")
     logger.info(f"Model name: {model_name}")
     logger.info(f"Hidden dims: {hidden_dims}")
+    logger.info(f"Normalization: {norm}")
+    logger.info(f"Dropout: {dropout}")
     logger.info(f"Batch size (#spots): {batch_size}")
     logger.info(f"Learning rate: {lr}")
     logger.info(f"Divergence: {divergence}")
@@ -157,6 +159,8 @@ def main(
         adata_name=adata_name,
         model_name=model_name,
         hidden_dims=hidden_dims,
+        norm=norm,
+        dropout=dropout,
         batch_size=batch_size,
         lr=lr,
         divergence=divergence,
