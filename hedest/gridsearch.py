@@ -103,8 +103,6 @@ def run_experiment(
         "80",
         "--out-dir",
         config_out_dir,
-        "--tb-dir",
-        "models/TBruns",
         "--rs",
         str(seed),
     ]

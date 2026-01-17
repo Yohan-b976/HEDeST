@@ -55,8 +55,8 @@ def main(
     alpha: float = typer.Option(0.0, help="Alpha parameter for loss function."),
     beta: float = typer.Option(0.0, help="Beta parameter for bayesian adjustment."),
     epochs: int = typer.Option(60, help="Number of training epochs."),
-    train_size: float = typer.Option(0.5, help="Training set size as a fraction."),
-    val_size: float = typer.Option(0.25, help="Validation set size as a fraction."),
+    train_size: float = typer.Option(0.7, help="Training set size as a fraction."),
+    val_size: float = typer.Option(0.15, help="Validation set size as a fraction."),
     out_dir: str = typer.Option("results", help="Output directory."),
     rs: int = typer.Option(42, help="Random seed"),
 ):
