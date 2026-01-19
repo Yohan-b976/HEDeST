@@ -85,8 +85,6 @@ def run_experiment(
         model_name,
         "--hidden-dims",
         hidden_dim,
-        "--norm",
-        str(norm),
         "--dropout",
         str(dropout),
         "--batch-size",
@@ -106,6 +104,9 @@ def run_experiment(
         "--rs",
         str(seed),
     ]
+
+    if norm:
+        args.append("--norm")
 
     subprocess.run(args, check=True)
 
