@@ -30,12 +30,9 @@ class ImageDictDataset(Dataset):
 
     def __getitem__(self, idx):
         cell_id = self.cell_ids[idx]
-        image = self.image_dict[cell_id]  # Tensor (3, H, W)
+        image = self.image_dict[cell_id]
 
-        # ensure float in [0, 1]
-        if image.dtype != torch.float32:
-            image = image.float() / 255.0
-
+        image = image.float() / 255.0
         image = self.to_pil(image)
         image = self.transform(image)
 
@@ -50,8 +47,6 @@ def parse_args():
 
     parser.add_argument("--image-dict", type=Path, required=True, help="Path to image_dict.pt")
     parser.add_argument("--output-path", type=Path, required=True, help="Output filename")
-
-    parser.add_argument("--device", type=str, default="cpu", choices=["cpu", "cuda"], help="Device to run inference on")
     parser.add_argument("--model-name", type=str, default="vits8", help="ViT model variant")
     parser.add_argument("--cell-size", type=int, default=40, help="Target image size")
     parser.add_argument(
@@ -71,7 +66,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    device = args.device
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     args.output_path.parent.mkdir(parents=True, exist_ok=True)
     args.weights.parent.mkdir(parents=True, exist_ok=True)
 
@@ -87,7 +82,7 @@ def main():
     # -------------------------
     # Load data
     # -------------------------
-    image_dict = torch.load(args.image_dict, map_location="cpu")
+    image_dict = torch.load(args.image_dict)
 
     dataset = ImageDictDataset(image_dict, transform)
     dataloader = DataLoader(
@@ -95,7 +90,6 @@ def main():
         batch_size=args.batch_size,
         shuffle=False,
         num_workers=args.num_workers,
-        pin_memory=(device == "cuda"),
     )
 
     # -------------------------
@@ -103,17 +97,14 @@ def main():
     # -------------------------
     embeddings_dict = {}
 
-    with torch.inference_mode():
-        for images, cell_ids in tqdm(dataloader, desc="Extracting embeddings"):
-            images = images.to(device, non_blocking=True)
-
-            with torch.autocast(device_type=device, dtype=torch.float16 if device == "cuda" else torch.float32):
-                embeddings = model(images)
-
-            embeddings = embeddings.cpu()
+    for images, cell_ids in tqdm(dataloader, desc="Extracting embeddings"):
+        with torch.inference_mode(), torch.cuda.amp.autocast(dtype=torch.float32):
+            images = images.to(device)
+            embeddings = model(images)
+            embeddings = embeddings.view(embeddings.shape[0], -1)
 
             for i, cell_id in enumerate(cell_ids):
-                embeddings_dict[cell_id] = embeddings[i]
+                embeddings_dict[cell_id] = embeddings[i].cpu()
 
     # -------------------------
     # Save
