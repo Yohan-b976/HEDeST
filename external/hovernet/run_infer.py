@@ -14,9 +14,9 @@ Options:
   --type_info_path=<path>     Path to a json define mapping between type id, type name,
                               and expected overlaid color. [default: '']
 
-  --size_px=<n>           Output tile size in pixels. [default: 64]
-  --size_um=<f>           Crop size in micrometers. [default: ]
-  --mpp=<f>               Resolution of the original WSI (Microns per pixel). [default: ]
+  --size_px=<n>               Output tile size in pixels. [default: 64]
+  --size_um=<f>               Crop size in micrometers. [default: ]
+  --mpp=<f>                   Resolution of the original WSI (Microns per pixel). [default: ]
 
   --model_path=<path>         Path to saved checkpoint.
   --model_mode=<mode>         Original HoVer-Net or the reduced version used PanNuke and MoNuSAC,
@@ -56,17 +56,17 @@ wsi_cli = """
 Arguments for processing wsi
 
 usage:
-    wsi (--input_dir=<path>) (--output_dir=<path>) [--image_dict_path=<path>] [--proc_mag=<n>]\
-        [--cache_path=<path>] [--input_mask_dir=<path>] [--ambiguous_size=<n>] \
-        [--chunk_shape=<n>] [--tile_shape=<n>] [--save_thumb] [--save_mask] \
+    wsi (--input_dir=<path>) (--output_dir=<path>) (--image_dict_path=<path>) \
+        [--input_mask_dir=<path>] [--cache_path=<path>] [--proc_mag=<n>] [--ambiguous_size=<n>] \
+        [--chunk_shape=<n>] [--tile_shape=<n>] [--save_thumb] [--save_mask]
 
 options:
     --input_dir=<path>       Path to input data directory. Assumes the files are not nested within directory.
     --output_dir=<path>      Path to output directory.
-    --image_dict_path=<path> Path to save extracted image dictionary. [default: '']
-    --cache_path=<path>      Path for cache. Should be placed on SSD with at least 100GB. [default: cache]
-    --mask_dir=<path>        Path to directory containing tissue masks.
+    --image_dict_path=<path> Path to save extracted image dictionary.
+    --input_mask_dir=<path>  Path to directory containing tissue masks.
                              Should have the same name as corresponding WSIs. [default: '']
+    --cache_path=<path>      Path for cache. Should be placed on SSD with at least 100GB. [default: cache]
 
     --proc_mag=<n>           Magnification level (objective power) used for WSI processing. [default: 40]
     --ambiguous_size=<int>   Define ambiguous region along tiling grid to perform re-post processing. [default: 128]
@@ -254,7 +254,7 @@ if __name__ == "__main__":
                 mpp=mpp,
                 save_dict=os.path.join(run_args["image_dict_path"]),
             )
-            logging.info("-> Image extraction completed successfully.")
+            logging.info(f"-> Image extraction completed successfully ({len(image_dict)} cells).")
 
         except Exception as e:
             raise ValueError(

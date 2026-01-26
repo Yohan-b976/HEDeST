@@ -21,8 +21,9 @@ This repository has been adapted from the official HoVerNet repository. The foll
 
 - We added functions to replace the automatic mask generator (``mask_utils.py``, ``run_mask.py``),
 - We changed the ``run_infer.py`` file to make the cell ids in the final json file range from 0 to n_cells,
-- We also adapted the ``run_infer.py`` so it could edxtract cell crops thanks to ``extract_cell_images.py``,
+- We also adapted the ``run_infer.py`` so it could extract cell crops thanks to ``extract_cell_images.py``,
 - We added the file ``get_tiff_resolution.py`` that enables you to get the microns per pixel metric (mpp) for any tiff file,
+- We changed the ``infer/wsi.py`` file to make the tile assembly step shape-aware to correctly handle partial tiles at WSI borders,
 - Because of those changes, the requirements have been slightly changed.
 
 ## Set Up Environment
@@ -33,7 +34,11 @@ conda activate hovernet
 pip install torch==1.6.0 torchvision==0.7.0
 ```
 
-Above, we install PyTorch version 1.6 with CUDA 10.2.
+Above, we install PyTorch version 1.6 with CUDA 10.2. In the adapted version for HEDeST, we installed a new PyTorch version in order to match A40 GPUs requirements :
+
+```
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
 
 ## Repository Structure
 

@@ -545,7 +545,11 @@ class InferManager(base.InferManager):
                 inst_info["centroid"] += top_left
                 self.wsi_inst_info[inst_id + wsi_max_id] = inst_info
             pred_inst[pred_inst > 0] += wsi_max_id
-            self.wsi_inst_map[tile_tl[0] : tile_br[0], tile_tl[1] : tile_br[1]] = pred_inst
+            h, w = pred_inst.shape
+            self.wsi_inst_map[
+                tile_tl[0]:tile_tl[0] + h,
+                tile_tl[1]:tile_tl[1] + w
+            ] = pred_inst
 
             pbar.update()  # external
             return

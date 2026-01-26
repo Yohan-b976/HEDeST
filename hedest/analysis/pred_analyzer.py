@@ -54,6 +54,8 @@ class PredAnalyzer:
     EXPECTED_VARIABLES = {
         "model_name",
         "hidden_dims",
+        "norm",
+        "dropout",
         "spot_dict",
         "train_spot_dict",
         "proportions",
