@@ -38,7 +38,7 @@ def run_hedest(
     adata_name: Optional[str] = None,
     model_name: str = "default",
     hidden_dims: List[int] = [512, 256],
-    norm: bool = True,
+    norm: bool = False,
     dropout: float = 0.0,
     batch_size: int = 64,
     lr: float = 0.0001,

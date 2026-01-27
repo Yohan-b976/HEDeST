@@ -58,7 +58,7 @@ class CellClassifier(BaseCellClassifier):
         model_name: str,
         num_classes: int,
         hidden_dims: list = [512, 256],
-        norm: bool = True,
+        norm: bool = False,
         dropout: float = 0.0,
         device: torch.device = torch.device("cpu"),
     ):
