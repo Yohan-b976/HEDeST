@@ -84,7 +84,8 @@ class CellClassifier(BaseCellClassifier):
 
         if self.model_name == "default":
             self.backbone = nn.Sequential()
-            input_dim = 384  # Hardcoded
+            input_dim = 2048 if self.hidden_dims[0] > 400 else 384  # Hardcoded
+            print(f"Using input dim: {input_dim}")
             for i, hidden_dim in enumerate(self.hidden_dims):
                 self.backbone.add_module(f"fc_{i}", nn.Linear(input_dim, hidden_dim))
                 if self.norm:
