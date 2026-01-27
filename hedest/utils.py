@@ -38,7 +38,9 @@ def set_seed(seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
 
 
-def load_model(model_path: str, model_name: str, num_classes: int, hidden_dims: List[int]) -> CellClassifier:
+def load_model(
+    model_path: str, model_name: str, num_classes: int, hidden_dims: List[int], norm: bool = False, dropout: float = 0.0
+) -> CellClassifier:
     """
     Loads a trained model from a file.
 
@@ -47,6 +49,8 @@ def load_model(model_path: str, model_name: str, num_classes: int, hidden_dims: 
         model_name: Name of the model architecture.
         num_classes: Number of classes in the model.
         hidden_dims: List of hidden layer dimensions.
+        norm: Whether the model uses LayerNorm.
+        dropout: Dropout rate used in the model.
 
     Returns:
         The loaded model.
@@ -55,7 +59,14 @@ def load_model(model_path: str, model_name: str, num_classes: int, hidden_dims: 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device found to load the model : ", device)
 
-    model = CellClassifier(model_name=model_name, num_classes=num_classes, hidden_dims=hidden_dims, device=device)
+    model = CellClassifier(
+        model_name=model_name,
+        num_classes=num_classes,
+        hidden_dims=hidden_dims,
+        norm=norm,
+        dropout=dropout,
+        device=device,
+    )
 
     model.load_state_dict(torch.load(model_path, map_location=device))
 

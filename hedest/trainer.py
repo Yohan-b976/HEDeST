@@ -208,6 +208,8 @@ class ModelTrainer:
             model_name=self.model.model_name,
             num_classes=self.model.num_classes,
             hidden_dims=self.model.hidden_dims,
+            norm=self.model.norm,
+            dropout=self.model.dropout,
             device=self.device,
         )
         best_model.load_state_dict(torch.load(self.best_model_path))
