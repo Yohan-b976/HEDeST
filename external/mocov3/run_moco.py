@@ -44,7 +44,7 @@ def main(
                     image_path=image_path,
                     json_path=json_path,
                     save_images=None,
-                    save_dict=os.path.join(save_path, "image_dict.pt"),
+                    save_dict=os.path.join(save_path, f"image_dict_{tag}.pt"),
                 )
                 logger.info("-> Image extraction completed successfully.")
 
@@ -62,14 +62,14 @@ def main(
                 "or ensure the image path is a .pt file."
             )
 
-        image_path = os.path.join(save_path, "image_dict.pt")
+        image_path = os.path.join(save_path, f"image_dict_{tag}.pt")
 
     # Save h5 file
     h5_folder = os.path.join(save_path, "cell_images")
     if not os.path.exists(h5_folder):
         os.makedirs(h5_folder)
 
-    sample_id = "slide1"
+    sample_id = f"slide_{tag}"
     h5_path = os.path.join(h5_folder, f"{sample_id}.h5")
     image_dict_to_h5(image_path, h5_path)
 

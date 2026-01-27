@@ -88,7 +88,7 @@ def extract_images_hn(
         img_cell = img_cell.convert("RGB")
 
         if size_um is not None and crop_px != size_px:
-            img_cell = img_cell.resize((size_px, size_px), Image.BILINEAR)
+            img_cell = img_cell.resize((size_px, size_px))
 
         if save_images is not None:
             if dict_types is not None:
