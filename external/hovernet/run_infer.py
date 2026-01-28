@@ -205,17 +205,23 @@ if __name__ == "__main__":
         infer = InferManager(**method_args)
         infer.process_file_list(run_args)
     else:
-        from infer.wsi import InferManager
-        from extract_cell_images import extract_images_hn
+        out_path = Path(run_args["output_dir"])
+        json_files = list(out_path.glob("*.json"))
 
-        # Segmentation
-        infer = InferManager(**method_args)
-        infer.process_wsi_list(run_args)
+        # ---- Segmentation (only if no JSON exists) ----
+        if not json_files:
+            from infer.wsi import InferManager
+
+            infer = InferManager(**method_args)
+            infer.process_wsi_list(run_args)
+
+            # refresh JSON list after segmentation
+            json_files = list(out_path.glob("*.json"))
+        else:
+            logging.info("Existing JSON file(s) found. Skipping segmentation step.")
 
         # Process data
         ## Reindex the 'nuc' keys in the output JSON files
-        out_path = Path(run_args["output_dir"])
-        json_files = list(out_path.glob("*.json"))
 
         if len(json_files) != 1:
             raise ValueError(f"Unexpected number of JSON files: {len(json_files)}")
@@ -237,6 +243,8 @@ if __name__ == "__main__":
         logging.info(f"Reindexed 'nuc' keys in {json_path}")
 
         ## Extract cell images
+        from extract_cell_images import extract_images_hn
+        
         input_path = Path(run_args["input_dir"])
         image_files = list(input_path.iterdir())
 
