@@ -207,6 +207,8 @@ class ModelTrainer:
         best_model = type(self.model)(
             model_name=self.model.model_name,
             num_classes=self.model.num_classes,
+            embed_size=self.model.embed_size,
+            image_size=self.model.image_size,
             hidden_dims=self.model.hidden_dims,
             norm=self.model.norm,
             dropout=self.model.dropout,

@@ -39,7 +39,14 @@ def set_seed(seed: int) -> None:
 
 
 def load_model(
-    model_path: str, model_name: str, num_classes: int, hidden_dims: List[int], norm: bool = False, dropout: float = 0.0
+    model_path: str,
+    model_name: str,
+    num_classes: int,
+    embed_size: Optional[int],
+    image_size: Optional[tuple[int, int, int]],
+    hidden_dims: List[int],
+    norm: bool = False,
+    dropout: float = 0.0,
 ) -> CellClassifier:
     """
     Loads a trained model from a file.
@@ -48,6 +55,8 @@ def load_model(
         model_path: Path to the model file.
         model_name: Name of the model architecture.
         num_classes: Number of classes in the model.
+        embed_size: Size of the embedding layer (if applicable).
+        image_size: Size of the input images (if applicable).
         hidden_dims: List of hidden layer dimensions.
         norm: Whether the model uses LayerNorm.
         dropout: Dropout rate used in the model.
@@ -62,6 +71,8 @@ def load_model(
     model = CellClassifier(
         model_name=model_name,
         num_classes=num_classes,
+        embed_size=embed_size,
+        image_size=image_size,
         hidden_dims=hidden_dims,
         norm=norm,
         dropout=dropout,
