@@ -40,6 +40,9 @@ class SpotDataset(Dataset):
         self.spot_ids = list(spot_dict.keys())
         self.transform = transform
 
+        sample = next(iter(image_dict.values()))
+        self.image_size = sample.shape
+
     def __len__(self):
         return len(self.spot_ids)
 
@@ -83,6 +86,8 @@ class SpotEmbedDataset(Dataset):
         self.spot_prop_df = spot_prop_df
         self.image_dict = image_dict
         self.spot_ids = list(spot_dict.keys())
+
+        self.embed_size = next(iter(image_dict.values())).numel()
 
     def __len__(self):
         return len(self.spot_ids)

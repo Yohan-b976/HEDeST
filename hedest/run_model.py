@@ -96,11 +96,17 @@ def run_hedest(
         val_dataset = SpotEmbedDataset(val_spot_dict, val_proportions, image_dict)
         test_dataset = SpotEmbedDataset(test_spot_dict, test_proportions, image_dict)
 
+        embed_size = train_dataset.embed_size
+        image_size = None
+
     else:
         transform = get_transform(model_name)
         train_dataset = SpotDataset(train_spot_dict, train_proportions, image_dict, transform)
         val_dataset = SpotDataset(val_spot_dict, val_proportions, image_dict, transform)
         test_dataset = SpotDataset(test_spot_dict, test_proportions, image_dict, transform)
+
+        embed_size = None
+        image_size = train_dataset.image_size
 
     # Create dataloaders
     train_loader = torch.utils.data.DataLoader(
@@ -120,6 +126,8 @@ def run_hedest(
     model = CellClassifier(
         model_name=model_name,
         num_classes=num_classes,
+        embed_size=embed_size,
+        image_size=image_size,
         hidden_dims=hidden_dims,
         norm=norm,
         dropout=dropout,
@@ -156,6 +164,8 @@ def run_hedest(
     model4pred_best = CellClassifier(
         model_name=model_name,
         num_classes=num_classes,
+        embed_size=embed_size,
+        image_size=image_size,
         hidden_dims=hidden_dims,
         norm=norm,
         dropout=dropout,

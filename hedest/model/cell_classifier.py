@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -57,6 +59,8 @@ class CellClassifier(BaseCellClassifier):
         self,
         model_name: str,
         num_classes: int,
+        embed_size: Optional[int] = None,
+        image_size: Optional[tuple[int, int, int]] = None,
         hidden_dims: list = [512, 256],
         norm: bool = False,
         dropout: float = 0.0,
@@ -69,6 +73,8 @@ class CellClassifier(BaseCellClassifier):
             model_name (str): Name of the pretrained model (e.g., "default", "convnet"
                               or "resnet18"...).
             num_classes (int): Number of output classes.
+            embed_size (Optional[int]): Size of the input embeddings (if model_name is "default").
+            image_size (Optional[tuple[int, int, int]]): Size of the input images (if model_name is not "default").
             hidden_dims (list): List of hidden dimensions for the fully connected layers.
             norm (bool): Whether to add a LayerNorm layer.
             dropout (float): Dropout rate.
@@ -80,12 +86,18 @@ class CellClassifier(BaseCellClassifier):
         self.hidden_dims = hidden_dims
         self.norm = norm
         self.dropout = dropout
-        self.size_edge = 40
+        self.embed_size = embed_size
+        self.image_size = image_size
+
+        C, H, W = self.image_size if self.image_size is not None else (None, None, None)
+        self.size_edge = H
 
         if self.model_name == "default":
+            if self.embed_size is None:
+                raise ValueError("embed_size must be provided for embedding-based model")
+
             self.backbone = nn.Sequential()
-            input_dim = 2048 if self.hidden_dims[0] > 400 else 384  # Hardcoded
-            print(f"Using input dim: {input_dim}")
+            input_dim = self.embed_size
             for i, hidden_dim in enumerate(self.hidden_dims):
                 self.backbone.add_module(f"fc_{i}", nn.Linear(input_dim, hidden_dim))
                 if self.norm:
@@ -98,6 +110,9 @@ class CellClassifier(BaseCellClassifier):
             self.backbone.add_module("final", nn.Linear(input_dim, num_classes))
 
         elif self.model_name == "convnet":
+            if self.size_edge is None:
+                raise ValueError("image_size must be provided for image-based model")
+
             conv = ConvNet()
 
             with torch.no_grad():
