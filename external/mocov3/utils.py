@@ -79,8 +79,9 @@ def run_moco_script(
     n_cpus_per_gpu: int,
 ):
     # Define the base path to the script
-    script_path = os.path.abspath(os.path.join("external", "mocov3", "main_moco.py"))
-    model_output_path = os.path.abspath(os.path.join("models", "ssl"))
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    script_path = os.path.join(BASE_DIR, "external", "mocov3", "main_moco.py")
+    model_output_path = os.path.join(BASE_DIR, "models", "ssl")
     os.makedirs(model_output_path, exist_ok=True)
 
     default_port = find_available_port()

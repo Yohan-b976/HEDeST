@@ -217,30 +217,35 @@ if __name__ == "__main__":
 
             # refresh JSON list after segmentation
             json_files = list(out_path.glob("*.json"))
+
+            # Process data
+            ## Reindex the 'nuc' keys in the output JSON files
+
+            if len(json_files) != 1:
+                raise ValueError(f"Unexpected number of JSON files: {len(json_files)}")
+            
+            json_path = json_files[0]
+            with open(json_path, "r") as f:
+                data = json.load(f)
+
+            if "nuc" not in data:
+                raise KeyError(f"'nuc' key not found in {json_path}. Cannot reindex.")
+
+            nuc_dict = data["nuc"]
+            new_nuc = {str(i): value for i, value in enumerate(nuc_dict.values())}
+            data["nuc"] = new_nuc
+
+            with open(json_path, "w") as f:
+                json.dump(data, f, indent=2)
+
+            logging.info(f"Reindexed 'nuc' keys in {json_path}")
+            
         else:
+            if len(json_files) != 1:
+                raise ValueError(f"Unexpected number of JSON files: {len(json_files)}")
+            
+            json_path = json_files[0]
             logging.info("Existing JSON file(s) found. Skipping segmentation step.")
-
-        # Process data
-        ## Reindex the 'nuc' keys in the output JSON files
-
-        if len(json_files) != 1:
-            raise ValueError(f"Unexpected number of JSON files: {len(json_files)}")
-        
-        json_path = json_files[0]
-        with open(json_path, "r") as f:
-            data = json.load(f)
-
-        if "nuc" not in data:
-            raise KeyError(f"'nuc' key not found in {json_path}. Cannot reindex.")
-
-        nuc_dict = data["nuc"]
-        new_nuc = {str(i): value for i, value in enumerate(nuc_dict.values())}
-        data["nuc"] = new_nuc
-
-        with open(json_path, "w") as f:
-            json.dump(data, f, indent=2)
-
-        logging.info(f"Reindexed 'nuc' keys in {json_path}")
 
         ## Extract cell images
         from extract_cell_images import extract_images_hn

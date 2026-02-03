@@ -53,7 +53,8 @@ def infer_embed(
         num_workers: Number of workers for data loading. Defaults to 4.
     """
 
-    weight_dir = "models/ssl"
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    weight_dir = os.path.join(BASE_DIR, "models", "ssl")
     weights_path = os.path.join(weight_dir, tag, "moco_model_best.pth.tar")
 
     stats_path = os.path.join(Path(weights_path).parent, "moco_model_best_mean_std.json")
