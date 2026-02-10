@@ -14,9 +14,17 @@ conda activate mhast
 export LD_LIBRARY_PATH=/cluster/CBIO/home/lgortana/anaconda3/envs/mhast/lib:$LD_LIBRARY_PATH
 
 python3 -u sim.py \
-    --data_path /cluster/CBIO/data1/lgortana/CytAssist_11mm_FFPE_Human_Ovarian_Carcinoma/sim \
+    --data_path /cluster/CBIO/data1/lgortana/CytAssist_11mm_FFPE_Human_Ovarian_Carcinoma/sim-v2 \
     --gt_filename 4_moco_clusters_30spots_balanced_5mean_5var_gt.csv \
     --spot_dict_filename 4_moco_clusters_30spots_balanced_5mean_5var_spot_dict.json \
     --embeddings_filename 4_moco_clusters_30spots_balanced_5mean_5var_emb_dict.pt \
-    --n_iter 150 \
-    --output_xlsx ../results/mhast/4_moco_clusters_30spots_balanced_5mean_5var_mhast.xlsx
+    --n_iter 100 \
+    --output_xlsx /cluster/CBIO/home/lgortana/HEDeST/benchmark/results/mhast/Ovarian_Cancer_full_simulation/4_moco_clusters_30spots_balanced_5mean_5var_mhast.xlsx
+
+python3 -u sim.py \
+    --data_path /cluster/CBIO/data1/lgortana/CytAssist_11mm_FFPE_Human_Ovarian_Carcinoma/sim-v2 \
+    --gt_filename 4_moco_clusters_30spots_imbalanced_5mean_5var_gt.csv \
+    --spot_dict_filename 4_moco_clusters_30spots_imbalanced_5mean_5var_spot_dict.json \
+    --embeddings_filename 4_moco_clusters_30spots_imbalanced_5mean_5var_emb_dict.pt \
+    --n_iter 100 \
+    --output_xlsx /cluster/CBIO/home/lgortana/HEDeST/benchmark/results/mhast/Ovarian_Cancer_full_simulation/4_moco_clusters_30spots_imbalanced_5mean_5var_mhast.xlsx

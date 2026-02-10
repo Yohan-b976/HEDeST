@@ -19,6 +19,14 @@ from hedest.utils import load_spatial_adata
 app = typer.Typer()
 
 
+def normalize_none(x: Optional[str]) -> Optional[str]:
+    if x is None:
+        return None
+    if isinstance(x, str) and x.strip().lower() in {"none", ""}:
+        return None
+    return x
+
+
 def parse_hidden_dims(hidden_dims: str) -> List[int]:
     """
     Parses the hidden_dims string into a list of integers.
@@ -61,6 +69,10 @@ def main(
     rs: int = typer.Option(42, help="Random seed"),
 ):
 
+    json_path = normalize_none(json_path)
+    path_st_adata = normalize_none(path_st_adata)
+    adata_name = normalize_none(adata_name)
+    spot_dict_file = normalize_none(spot_dict_file)
     hidden_dims = parse_hidden_dims(hidden_dims)
 
     # Validate inputs

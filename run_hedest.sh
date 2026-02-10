@@ -14,23 +14,24 @@ conda activate plugin-env
 
 export LD_LIBRARY_PATH=/cluster/CBIO/home/lgortana/anaconda3/envs/plugin-env/lib:$LD_LIBRARY_PATH
 
-for seed in 42 43 44 45 46; do
+for seed in {0..9}; do
   python3 -u hedest/main.py \
-    /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/moco_embed_moco-TENXHB-rn50.pt \
+    /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/moco_embed_BRCA_64px_20um.pt \
     /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/props/DestVI_2000_hvg_squash_06_02_no_endo_Visium_FFPE_Human_Breast_Cancer_prop.csv \
     --json-path /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/seg_json/pannuke_fast_mask_lvl3.json \
     --path-st-adata /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/ST/ \
     --adata-name Visium_FFPE_Human_Breast_Cancer \
     --spot-dict-file /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/spot_dict.json \
     --model-name default \
+    --norm \
     --batch-size 64 \
-    --lr 3e-4 \
+    --lr 1e-4 \
     --divergence l2 \
     --alpha 0 \
     --beta 0.0 \
     --epochs 100 \
     --train-size 0.8 \
     --val-size 0.1 \
-    --out-dir models/Breast_cancer_FFPE/DestVI_2000_hvg_squash_06_02_no_endo/model_quick_alpha_0.0_lr_0.0003_divergence_l2_beta_0.0_seed_${seed} \
+    --out-dir models/BRCA-v2/DestVI_4000_hvg_squash_06_02/model_default_hidden_dim_512-256_norm_True_dropout_0.0_alpha_0.0_lr_0.0001_divergence_l2_beta_0.0_seed_${seed} \
     --rs $seed
 done
