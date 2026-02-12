@@ -13,6 +13,7 @@ from anndata import AnnData
 from loguru import logger
 from torch import optim
 
+from hedest.analysis.pred_analyzer import PredAnalyzer
 from hedest.dataset import SpotDataset
 from hedest.dataset import SpotEmbedDataset
 from hedest.dataset_utils import custom_collate
@@ -25,8 +26,6 @@ from hedest.predict import predict_slide
 from hedest.trainer import ModelTrainer
 from hedest.utils import format_time
 from hedest.utils import set_seed
-
-# from hedest.analysis.pred_analyzer import PredAnalyzer
 
 
 def run_hedest(
@@ -222,20 +221,20 @@ def run_hedest(
     with open(info_dir, "wb") as f:
         pickle.dump(model_info, f)
 
-    # # Extract and save statistics
-    # logger.info("Extracting and saving statistics...")
+    # Extract and save statistics
+    logger.info("Extracting and saving statistics...")
 
-    # stats_best_predicted = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="predicted")
-    # stats_best_all = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="all")
+    stats_best_predicted = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="predicted")
+    stats_best_all = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="all")
 
-    # stats_best_adj_predicted = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="predicted")
-    # stats_best_adj_all = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="all")
+    stats_best_adj_predicted = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="predicted")
+    stats_best_adj_all = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="all")
 
-    # with pd.ExcelWriter(os.path.join(out_dir, "stats.xlsx")) as writer:
-    #     stats_best_predicted.to_excel(writer, sheet_name="best_predicted", index=False)
-    #     stats_best_all.to_excel(writer, sheet_name="best_all", index=False)
-    #     stats_best_adj_predicted.to_excel(writer, sheet_name="best_adj_predicted", index=False)
-    #     stats_best_adj_all.to_excel(writer, sheet_name="best_adj_all", index=False)
+    with pd.ExcelWriter(os.path.join(out_dir, "stats.xlsx")) as writer:
+        stats_best_predicted.to_excel(writer, sheet_name="best_predicted", index=False)
+        stats_best_all.to_excel(writer, sheet_name="best_all", index=False)
+        stats_best_adj_predicted.to_excel(writer, sheet_name="best_adj_predicted", index=False)
+        stats_best_adj_all.to_excel(writer, sheet_name="best_adj_all", index=False)
 
     logger.info("Secondary deconvolution process completed successfully.")
     logger.info(f"Training time: {TRAIN_TIME}")
