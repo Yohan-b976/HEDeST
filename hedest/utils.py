@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 import torch
+from anndata import AnnData
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PIL import Image
@@ -110,6 +111,44 @@ def load_spatial_adata(path: str):
             raise RuntimeError("Failed to load data with either sc.read_h5ad or sc.read_visium") from (
                 h5ad_error or visium_error
             )
+
+
+def update_spot_diameter(adata: AnnData, adata_name: str, mpp: float) -> AnnData:
+    """
+    Update spot_diameter_fullres in an AnnData object using a given microns-per-pixel (mpp).
+
+    If 'spot_diameter0' already exists, the function assumes the update
+    was already performed and does nothing.
+
+    Args:
+        adata: AnnData object containing spatial transcriptomics data.
+        adata_name: Name of the sample in adata.uns['spatial'].
+        mpp: Microns per pixel of the WSI.
+
+    Returns:
+        Updated AnnData object with modified spot diameter.
+    """
+
+    if mpp is None or mpp <= 0:
+        raise ValueError("mpp must be a positive float.")
+
+    scalefactors = adata.uns["spatial"][adata_name]["scalefactors"]
+
+    # If already updated, skip
+    if "spot_diameter0" in scalefactors:
+        print("spot_diameter_fullres already updated. Skipping.")
+        return adata
+
+    # Store old value
+    if "spot_diameter_fullres" not in scalefactors:
+        raise KeyError("spot_diameter_fullres not found in scalefactors.")
+
+    scalefactors["spot_diameter0"] = scalefactors["spot_diameter_fullres"]
+
+    # Update value (Visium spot diameter = 55 µm)
+    scalefactors["spot_diameter_fullres"] = 55 / mpp
+
+    return adata
 
 
 def count_cell_types(seg_dict: Dict[str, Any], ct_list: List[str]) -> pd.DataFrame:

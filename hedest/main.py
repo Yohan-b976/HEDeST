@@ -15,6 +15,7 @@ from hedest.dataset_utils import pp_prop
 from hedest.run_model import run_hedest
 from hedest.utils import format_time
 from hedest.utils import load_spatial_adata
+from hedest.utils import update_spot_diameter
 
 app = typer.Typer()
 
@@ -53,6 +54,7 @@ def main(
     path_st_adata: Optional[str] = typer.Option(None, help="Path to the ST anndata object."),
     adata_name: Optional[str] = typer.Option(None, help="Name of the sample."),
     spot_dict_file: Optional[str] = typer.Option(None, help="Path to the spot-to-cell json file."),
+    mpp: Optional[float] = typer.Option(None, help="Microns per pixel of the WSI."),
     model_name: str = typer.Option("default", help="Type of model. Can be 'default', 'convnet', or 'resnet18'."),
     hidden_dims: str = typer.Option("512,256", help="Hidden dimensions for the model (comma-separated)."),
     norm: bool = typer.Option(False, help="Whether to add a LayerNorm layer."),
@@ -127,6 +129,10 @@ def main(
             logger.info(f"-> Using default adata_name: {adata_name}")
         except Exception:
             raise ValueError("adata_name was not provided and could not be inferred from adata.uns['spatial'].")
+
+    if adata is not None and mpp is not None:
+        logger.info(f"Applying spot diameter update using mpp={mpp}...")
+        adata = update_spot_diameter(adata, adata_name, mpp)
 
     if spot_dict_file is not None and os.path.splitext(spot_dict_file)[1] == ".json":
         logger.info(f"Loading spot-to-cell dictionary from {spot_dict_file}...")
