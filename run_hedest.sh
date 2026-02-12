@@ -17,13 +17,14 @@ export LD_LIBRARY_PATH=/cluster/CBIO/home/lgortana/anaconda3/envs/plugin-env/lib
 for seed in {0..9}; do
   python3 -u hedest/main.py \
     /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/moco_embed_BRCA_64px_20um.pt \
-    /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/props/DestVI_2000_hvg_squash_06_02_no_endo_Visium_FFPE_Human_Breast_Cancer_prop.csv \
+    case_study/DestVI_BRCA_prop.csv \
     --json-path /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/seg_json/pannuke_fast_mask_lvl3.json \
-    --path-st-adata /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/ST/ \
+    --path-st-adata /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/adata.h5ad \
     --adata-name Visium_FFPE_Human_Breast_Cancer \
     --spot-dict-file /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/spot_dict.json \
     --model-name default \
     --norm \
+    --dropout 0.0 \
     --batch-size 64 \
     --lr 1e-4 \
     --divergence l2 \
