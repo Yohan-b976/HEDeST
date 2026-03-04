@@ -13,6 +13,7 @@ Options:
   --nr_types=<n>              Number of nuclei types to predict. [default: 0]
   --type_info_path=<path>     Path to a json define mapping between type id, type name,
                               and expected overlaid color. [default: '']
+  --adata_path=<path>         Path to anndata .h5ad file for ST filtering. [default: '']
 
   --size_px=<n>               Output tile size in pixels. [default: 64]
   --size_um=<f>               Crop size in micrometers. [default: ]
@@ -211,6 +212,7 @@ if __name__ == "__main__":
         # ---- Segmentation (only if no JSON exists) ----
         if not json_files:
             from infer.wsi import InferManager
+            from external.hovernet.seg_postprocessing import filter_by_st_proximity
 
             infer = InferManager(**method_args)
             infer.process_wsi_list(run_args)
@@ -219,8 +221,6 @@ if __name__ == "__main__":
             json_files = list(out_path.glob("*.json"))
 
             # Process data
-            ## Reindex the 'nuc' keys in the output JSON files
-
             if len(json_files) != 1:
                 raise ValueError(f"Unexpected number of JSON files: {len(json_files)}")
             
@@ -232,6 +232,15 @@ if __name__ == "__main__":
                 raise KeyError(f"'nuc' key not found in {json_path}. Cannot reindex.")
 
             nuc_dict = data["nuc"]
+
+            ## Optional ST filtering step
+            adata_path = args.get("adata_path")
+            if adata_path and mpp:
+                nuc_dict = filter_by_st_proximity(nuc_dict, adata_path, mpp)
+            elif adata_path and not mpp:
+                logging.warning("adata_path provided but mpp is missing. Skipping ST filtering.")
+
+            ## Reindex the 'nuc' keys in the output JSON files
             new_nuc = {str(i): value for i, value in enumerate(nuc_dict.values())}
             data["nuc"] = new_nuc
 
@@ -248,7 +257,7 @@ if __name__ == "__main__":
             logging.info("Existing JSON file(s) found. Skipping segmentation step.")
 
         ## Extract cell images
-        from extract_cell_images import extract_images_hn
+        from external.hovernet.seg_postprocessing import extract_images_hn
         
         input_path = Path(run_args["input_dir"])
         image_files = list(input_path.iterdir())
