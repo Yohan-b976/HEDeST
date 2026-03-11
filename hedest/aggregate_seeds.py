@@ -90,8 +90,6 @@ def aggregate_seeds(run_dir: Path):
         "spot_dict": ref["spot_dict"],
         "train_spot_dict": ref["train_spot_dict"],
         "proportions": ref["proportions"],
-        "num_seeds": len(infos),
-        # No history — aggregation across seeds makes history meaningless
         "preds": {
             "pred_best": avg_pred_best,
             "pred_best_adjusted": avg_pred_best_adjusted,
