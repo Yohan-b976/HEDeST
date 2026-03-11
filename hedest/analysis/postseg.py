@@ -210,7 +210,7 @@ class StdVisualizer(SlideVisualizer):
         show_visium: bool = False,
         title: Optional[str] = None,
         display: bool = True,
-        figsize: Tuple[int, int] = (18, 15),
+        figsize: Tuple[int, int] = (15, 15),
     ) -> Optional[plt.Figure]:
         """
         Plots the histological slide with an optional overlay of Visium spots.

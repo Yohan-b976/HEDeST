@@ -797,6 +797,7 @@ class PredAnalyzer:
     def compare_area(
         self,
         cell_types: List[str],
+        mpp: Optional[float] = None,
         title: str = "",
         ct_utest: List[List[str]] = None,
         height_unit_factor: float = 0.08,
@@ -809,6 +810,7 @@ class PredAnalyzer:
 
         Args:
             cell_types (List[str]): List of cell types to compare. Must be in self.ct_list.
+            mpp (float, optional): Microns per pixel for area conversion.
             title (str, optional): Plot title.
             ct_utest (List[List[str]], optional): List of [cell_type_A, cell_type_B] pairs for statistical comparison.
                                                     Performs one-sided Mann–Whitney U test (A > B).
@@ -818,7 +820,8 @@ class PredAnalyzer:
             savefig (str, optional): If provided, saves the plot to this path.
         """
 
-        pix_to_um = 55 / self.adata.uns["spatial"][self.adata_name]["scalefactors"]["spot_diameter_fullres"]
+        if mpp is None:
+            mpp = 55 / self.adata.uns["spatial"][self.adata_name]["scalefactors"]["spot_diameter_fullres"]
 
         # --- Validation ---
         invalid_ct = [ct for ct in cell_types if ct not in self.ct_list]
@@ -838,7 +841,7 @@ class PredAnalyzer:
             if cell_label in cell_types:
                 contour = info.get("contour")
                 if contour and len(contour) >= 3:
-                    area = polygon_area(contour) * (pix_to_um**2)
+                    area = polygon_area(contour) * (mpp**2)
                     areas_by_type[cell_label].append(area)
 
         data = [{"Cell Type": ct, "Area": area} for ct, areas in areas_by_type.items() for area in areas]
@@ -967,16 +970,24 @@ class PredAnalyzer:
 
     @require_attributes("adata", "adata_name")
     def plot_mean_neighbor_distances(
-        self, max_distance: Optional[float] = None, cmap: str = "coolwarm", display: bool = True
+        self,
+        mpp: Optional[float] = None,
+        max_distance: Optional[float] = None,
+        cmap: str = "coolwarm",
+        display: bool = True,
     ):
         """
         Plots a symmetric matrix of mean distances between neighboring cell types.
 
         Args:
+            mpp: Microns per pixel for area conversion.
             max_distance: The maximum distance to consider for neighbors.
             cmap: The colormap to use for the plot.
             display: Whether to display the plot or not.
         """
+
+        if mpp is None:
+            mpp = 55 / self.adata.uns["spatial"][self.adata_name]["scalefactors"]["spot_diameter_fullres"]
 
         neighbors = self._build_delaunay_graph(max_distance=max_distance)
         nuc_dict = self.seg_dict_w_class["nuc"]
@@ -996,10 +1007,8 @@ class PredAnalyzer:
 
         matrix = pd.DataFrame(np.nan, index=self.ct_list, columns=self.ct_list, dtype=float)
 
-        pix_to_um = 55 / self.adata.uns["spatial"][self.adata_name]["scalefactors"]["spot_diameter_fullres"]
-
         for (type_a, type_b), dist_list in pair_distances.items():
-            mean_dist = np.mean(dist_list) * pix_to_um
+            mean_dist = np.mean(dist_list) * mpp
             matrix.loc[type_a, type_b] = mean_dist
             matrix.loc[type_b, type_a] = mean_dist
 
