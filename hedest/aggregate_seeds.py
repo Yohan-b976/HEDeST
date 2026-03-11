@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from hedest.analysis import PredAnalyzer  # adjust import path if needed
+from hedest.analysis.pred_analyzer import PredAnalyzer  # adjust import path if needed
 
 # Import PredAnalyzer the same way run_model.py does
 
