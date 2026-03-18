@@ -75,6 +75,7 @@ options:
     --tile_shape=<n>         Shape of tiles for processing. [default: 2048]
     --save_thumb             To save thumb. [default: False]
     --save_mask              To save mask. [default: False]
+    --save_geojson           To save QuPath-compatible GeoJSON. [default: False]
 """
 
 import torch
@@ -196,6 +197,7 @@ if __name__ == "__main__":
                 "tile_shape": int(sub_args["tile_shape"]),
                 "save_thumb": sub_args["save_thumb"],
                 "save_mask": sub_args["save_mask"],
+                "save_geojson": sub_args["save_geojson"],
             }
         )
     # ***
@@ -248,6 +250,13 @@ if __name__ == "__main__":
                 json.dump(data, f, indent=2)
 
             logging.info(f"Reindexed 'nuc' keys in {json_path}")
+
+            #-- Optional GeoJSON output for QuPath --
+            if run_args.get("save_geojson"):
+                from external.hovernet.seg_postprocessing import hovernet_to_geojson
+                geojson_path = json_path.with_suffix(".geojson")
+                hovernet_to_geojson(json_path, geojson_path)
+                logging.info(f"GeoJSON saved to {geojson_path}")
             
         else:
             if len(json_files) != 1:

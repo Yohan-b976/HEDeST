@@ -14,8 +14,78 @@ from loguru import logger
 from tqdm import tqdm
 from hedest.config import TqdmToLogger
 from scipy.spatial import KDTree
+from shapely.geometry import Polygon
+from shapely.validation import make_valid
 
 tqdm_out = TqdmToLogger(logger, level="INFO")
+
+TYPE_COLORS = {
+    0: -1,          # white (unknown)
+    1: -3670016,    # red
+    2: -16711936,   # green
+    3: -16776961,   # blue
+    4: -16711681,   # cyan
+    5: -65536,      # magenta
+}
+
+def hovernet_to_geojson(hovernet_json_path, geojson_output_path):
+    with open(hovernet_json_path, "r") as f:
+        data = json.load(f)
+
+    features = []
+    skipped = 0
+
+    for cell_id, cell_info in data["nuc"].items():
+        contour = cell_info.get("contour", [])
+        if len(contour) < 3:
+            skipped += 1
+            continue
+
+        coords = [[float(p[0]), float(p[1])] for p in contour]
+        poly = Polygon(coords)
+
+        if not poly.is_valid:
+            poly = make_valid(poly)
+
+        if poly.geom_type == "MultiPolygon":
+            poly = max(poly.geoms, key=lambda p: p.area)
+        elif poly.geom_type != "Polygon":
+            skipped += 1
+            continue
+
+        if poly.area < 5:
+            skipped += 1
+            continue
+
+        cell_type = cell_info.get("type", 0)
+
+        features.append({
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [list(poly.exterior.coords)]
+            },
+            "properties": {
+                "object_type": "detection",
+                "classification": {
+                    "name": f"Type_{cell_type}",
+                    "colorRGB": TYPE_COLORS.get(cell_type, -1)
+                },
+                "isLocked": False,
+                "cell_id": str(cell_id),
+                "cell_type": cell_type,
+                "type_prob": cell_info.get("type_prob", None)
+            }
+        })
+
+    geojson = {"type": "FeatureCollection", "features": features}
+
+    with open(geojson_output_path, "w") as f:
+        json.dump(geojson, f)
+
+    print(f"{len(features)} cells exported to {geojson_output_path}")
+    if skipped:
+        print(f"{skipped} cells skipped")
 
 
 def filter_by_st_proximity(nuc_dict, adata_path, mpp, dist_thresh_um=300):
