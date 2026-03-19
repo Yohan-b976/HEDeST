@@ -50,12 +50,7 @@ def hovernet_to_geojson(hovernet_json_path, geojson_output_path):
         if poly.geom_type == "MultiPolygon":
             poly = max(poly.geoms, key=lambda p: p.area)
         elif poly.geom_type != "Polygon":
-            skipped += 1
-            continue
-
-        if poly.area < 5:
-            skipped += 1
-            continue
+            poly = poly.convex_hull
 
         cell_type = cell_info.get("type", 0)
 
