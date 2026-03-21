@@ -69,7 +69,7 @@ Once you have the embeddings and the proportions, you can run HEDeST using ``run
 - the AnnData object for your slide
 - the slide name
 
-The spot diameter in AnnData objects is for visualization purposes only. If you want to get the real diameter (in pixels) of 55um spots, we recommend you to change it with your image resolution (diameter = 55 / mpp). To know your mpp (microns per pixel), you can use ``external/hovernet/get_tiff_resolution.py`` or open the image in QuPath.
+The spot diameter in AnnData objects is for visualization purposes only. If you want to get the real diameter (in pixels) of ST spots, we recommend you to change it with your image resolution (diameter = 55 / mpp). To know your mpp (microns per pixel), you can use ``external/hovernet/get_tiff_resolution.py`` or open the image in QuPath.
 
 ## Tutorial
 
