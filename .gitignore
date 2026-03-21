@@ -4,7 +4,7 @@ __pycache*
 
 benchmark/results
 case_study/figures
-pretrained
+external/LEMON
 log
 models
 references/prior_proportions_idea.pdf
@@ -31,7 +31,6 @@ run_*
 !run_gridsearch.sh
 !run_hedest.sh
 !run_hovernet.sh
-!run_lemon.sh
 !run_mask.sh
 !run_moco_ssl.sh
 
