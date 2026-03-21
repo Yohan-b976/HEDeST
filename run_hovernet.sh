@@ -29,4 +29,5 @@ python external/hovernet/run_infer.py \
     --output_dir=/cluster/CBIO/data1/lgortana/Xenium_FFPE_Human_Breast_Cancer_Rep1/seg_json/ \
     --image_dict_path=/cluster/CBIO/data1/lgortana/Xenium_FFPE_Human_Breast_Cancer_Rep1/image_dict_40.pt \
     --input_mask_dir=/cluster/CBIO/data1/lgortana/Xenium_FFPE_Human_Breast_Cancer_Rep1/mask/lvl3/ \
-    --cache_path=/cluster/CBIO/data1/lgortana/cache
+    --cache_path=/cluster/CBIO/data1/lgortana/cache \
+    --save_geojson

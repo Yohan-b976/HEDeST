@@ -84,7 +84,7 @@ def bar_plot_perf(
     # Determine metrics to extract
     if level == "cells":
         metrics = {
-            "Global Accuracy": "Global Acc.",
+            # "Global Accuracy": "Global Acc.",
             "Balanced Accuracy": "Balanced Acc.",
             "Weighted F1 Score": "Weighted F1",
             "Weighted Precision": "Weighted Pre.",
