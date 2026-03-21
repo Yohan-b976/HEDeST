@@ -69,6 +69,8 @@ Once you have the embeddings and the proportions, you can run HEDeST using ``run
 - the AnnData object for your slide
 - the slide name
 
+The spot diameter in AnnData objects is for visualization purposes only. If you want to get the real diameter (in pixels) of 55um spots, we recommend you to change it with your image resolution (diameter = 55 / mpp). To know your mpp (microns per pixel), you can use ``external/hovernet/get_tiff_resolution.py`` or open the image in QuPath.
+
 ## Tutorial
 
 Download the dataset **'Human Breast Cancer: Ductal Carcinoma In Situ, Invasive Carcinoma (FFPE)'**:
@@ -85,7 +87,7 @@ Then, create a folder named ``Visium_FFPE_Human_Breast_Cancer``. Inside it, make
 
 You can find the proportion file in the **case_study** directory.
 
-After running preprocessing and training, open the notebook ``case_study/DCIS_study.ipynb`` for analysis and visualization.
+After running preprocessing and training, open the notebook ``case_study/DCIS_study.ipynb`` for analysis and visualization. The cell annotations performed by HEDeST can also be visualized in QuPath with the geojson output.
 
 ## Some classic errors
 During segmentation, you can get the ``OSError: [Errno 39] Directory not empty: 'cache'`` error. Make sure to delete everything you have in this repository and apply chmod 777. \

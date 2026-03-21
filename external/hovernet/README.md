@@ -24,6 +24,9 @@ This repository has been adapted from the official HoVerNet repository. The foll
 - We also adapted the ``run_infer.py`` so it could extract cell crops thanks to ``extract_cell_images.py``,
 - We added the file ``get_tiff_resolution.py`` that enables you to get the microns per pixel metric (mpp) for any tiff file,
 - We changed the ``infer/wsi.py`` file to make the tile assembly step shape-aware to correctly handle partial tiles at WSI borders,
+- We added the arguments ``--size_px``, ``--size_um`` and ``--mpp`` so the user can choose the biological and pixel size of the cell images,
+- We added an optional argument ``--adata_path`` that enables to filter cells based on their distance to the closest ST spot,
+- We added an optional argument ``--save_geojson`` if the user wants a geojson file to visualize the segmentation directly in QuPath,
 - Because of those changes, the requirements have been slightly changed.
 
 ## Set Up Environment

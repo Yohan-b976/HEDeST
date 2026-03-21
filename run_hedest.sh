@@ -19,9 +19,9 @@ for seed in {0..9}; do
     /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/moco_embed_BRCA_64px_20um.pt \
     case_study/DestVI_BRCA_prop.csv \
     --json-path /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/seg_json/pannuke_fast_mask_lvl3.json \
-    --path-st-adata /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/ST \
+    --path-st-adata /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/adata.h5ad \
     --adata-name Visium_FFPE_Human_Breast_Cancer \
-    --spot-dict-file /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/spot_dict_large.json \
+    --spot-dict-file /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/spot_dict.json \
     --model-name default \
     --norm \
     --dropout 0.0 \
@@ -33,6 +33,6 @@ for seed in {0..9}; do
     --epochs 100 \
     --train-size 0.8 \
     --val-size 0.1 \
-    --out-dir models/BRCA-v2/DestVI_4000_hvg_squash_06_02_large/model_default_hidden_dim_512-256_norm_True_dropout_0.0_alpha_0.0_lr_0.0001_divergence_l2_beta_0.0_seed_${seed} \
+    --out-dir models/BRCA/DestVI_4000_hvg_squash_06_02_large/model_default_hidden_dim_512-256_norm_True_dropout_0.0_alpha_0.0_lr_0.0001_divergence_l2_beta_0.0_seed_${seed} \
     --rs $seed
 done
