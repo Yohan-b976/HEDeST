@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import os
 import random
 from datetime import timedelta
@@ -21,6 +22,8 @@ from anndata import AnnData
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from PIL import Image
+from shapely.geometry import Polygon
+from shapely.validation import make_valid
 
 from hedest.model.cell_classifier import CellClassifier
 
@@ -284,6 +287,32 @@ def remove_empty_keys(data: Dict[str, List]) -> Dict[str, List]:
     return data
 
 
+def require_attributes(*required_attributes: str) -> Callable:
+    """
+    Decorator to ensure required attributes of a class are not None.
+
+    Args:
+        *required_attributes: Names of required attributes.
+
+    Returns:
+        Callable: Decorated function.
+    """
+
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            missing_attrs = [attr for attr in required_attributes if getattr(self, attr, None) is None]
+            if missing_attrs:
+                raise ValueError(
+                    f"Your object contains NoneType attribute(s): {', '.join(missing_attrs)}. "
+                    "Please add them with the add_attributes function."
+                )
+            return func(self, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 def generate_color_dict(
     labels: List[str], palette: str = "tab20", format: str = "classic", n_max: int = 40
 ) -> Dict[str, Union[Tuple, Tuple[str, List[int]]]]:
@@ -323,27 +352,110 @@ def generate_color_dict(
         raise ValueError("Format must be either 'classic' or 'special'.")
 
 
-def require_attributes(*required_attributes: str) -> Callable:
+def rgba_to_colorRGB(rgba: Tuple) -> int:
+    """Convert an RGBA tuple (0-255 ints) to a signed 32-bit colorRGB integer (QuPath format)."""
+
+    r, g, b = int(rgba[0]), int(rgba[1]), int(rgba[2])
+    value = (r << 16) | (g << 8) | b
+    # Convert to signed 32-bit
+    if value >= 0x800000:
+        value -= 0x1000000
+    return value
+
+
+def build_color_lookup(color_dict: Dict) -> Dict[str, int]:
     """
-    Decorator to ensure required attributes of a class are not None.
+    Convert a color_dict in 'special' format:
+        { "0": ["TypeName", [R, G, B, A]], ... }
+    into a lookup:
+        { "TypeName": colorRGB_int }
+    """
+
+    lookup = {}
+    for _, (class_name, rgba) in color_dict.items():
+        lookup[class_name] = rgba_to_colorRGB(rgba)
+    return lookup
+
+
+def seg_dict_to_geojson(
+    seg_dict: Dict,
+    geojson_output_path: str,
+    color_dict: Optional[Dict] = None,
+) -> None:
+    """
+    Convert a HEDeST-annotated seg_dict (same format as HoVerNet JSON, with
+    cell type labels assigned by HEDeST) into a QuPath-compatible GeoJSON file.
 
     Args:
-        *required_attributes: Names of required attributes.
-
-    Returns:
-        Callable: Decorated function.
+        seg_dict:            Dictionary in HoVerNet nuc format, i.e.:
+                             { "nuc": { cell_id: { "contour": [...],
+                                                    "type": int_or_str,
+                                                    "type_prob": float,
+                                                    ... } } }
+                             The "type" field is expected to be the class *name*
+                             (string) when coming from PredAnalyzer.seg_dict_w_class,
+                             or an integer index otherwise.
+        geojson_output_path: Where to write the .geojson file.
+        color_dict:          Optional dict in 'special' format:
+                             { "0": ["ClassName", [R, G, B, A]], ... }
+                             If None, all cells are colored white (-1).
     """
 
-    def decorator(func):
-        def wrapper(self, *args, **kwargs):
-            missing_attrs = [attr for attr in required_attributes if getattr(self, attr, None) is None]
-            if missing_attrs:
-                raise ValueError(
-                    f"Your object contains NoneType attribute(s): {', '.join(missing_attrs)}. "
-                    "Please add them with the add_attributes function."
-                )
-            return func(self, *args, **kwargs)
+    # Build name -> colorRGB lookup
+    color_lookup: Dict[str, int] = {}
+    if color_dict is not None:
+        color_lookup = build_color_lookup(color_dict)
 
-        return wrapper
+    features = []
+    skipped = 0
 
-    return decorator
+    for cell_id, cell_info in seg_dict["nuc"].items():
+        contour = cell_info.get("contour", [])
+        if len(contour) < 3:
+            skipped += 1
+            continue
+
+        coords = [[float(p[0]), float(p[1])] for p in contour]
+        poly = Polygon(coords)
+
+        if not poly.is_valid:
+            poly = make_valid(poly)
+        if poly.geom_type == "MultiPolygon":
+            poly = max(poly.geoms, key=lambda p: p.area)
+        elif poly.geom_type != "Polygon":
+            poly = poly.convex_hull
+
+        cell_type = cell_info.get("type", "Unknown")
+        # Normalise to string for lookup (handles both int and str types)
+        cell_type_str = str(cell_type)
+
+        color_rgb = color_lookup.get(cell_type_str, -1)  # default: white
+
+        features.append(
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [list(poly.exterior.coords)],
+                },
+                "properties": {
+                    "object_type": "detection",
+                    "classification": {
+                        "name": cell_type_str,
+                        "colorRGB": color_rgb,
+                    },
+                    "isLocked": False,
+                    "cell_id": str(cell_id),
+                    "cell_type": cell_type_str,
+                    "type_prob": cell_info.get("type_prob", None),
+                },
+            }
+        )
+
+    geojson = {"type": "FeatureCollection", "features": features}
+    with open(geojson_output_path, "w") as f:
+        json.dump(geojson, f)
+
+    print(f"{len(features)} cells exported to {geojson_output_path}")
+    if skipped:
+        print(f"{skipped} cells skipped (contour < 3 points)")

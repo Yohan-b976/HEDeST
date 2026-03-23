@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import pickle
 import time
@@ -48,6 +49,8 @@ def run_hedest(
     train_size: float = 0.5,
     val_size: float = 0.25,
     out_dir: str = "results",
+    save_geojson: bool = False,
+    color_dict_file: Optional[str] = None,
     rs: int = 42,
 ) -> None:
     """
@@ -73,6 +76,8 @@ def run_hedest(
         train_size: Proportion of data used for training.
         val_size: Proportion of data used for validation.
         out_dir: Directory to save results.
+        save_geojson: Whether to export a GeoJSON file for QuPath.
+        color_dict_file: Path to a YAML color dict (special format).
         rs: Random seed for reproducibility.
     """
 
@@ -224,17 +229,53 @@ def run_hedest(
     # Extract and save statistics
     logger.info("Extracting and saving statistics...")
 
-    stats_best_predicted = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="predicted")
-    stats_best_all = PredAnalyzer(model_info=model_info, adjusted=False).extract_stats(metric="all")
+    # Load seg_dict once if needed for GeoJSON export
+    seg_dict_raw = None
+    if save_geojson and json_path is not None:
+        with open(json_path, "r") as f:
+            seg_dict_raw = json.load(f)
+    elif save_geojson and json_path is None:
+        logger.warning("save_geojson=True but json_path is None — GeoJSON export will be skipped.")
 
-    stats_best_adj_predicted = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="predicted")
-    stats_best_adj_all = PredAnalyzer(model_info=model_info, adjusted=True).extract_stats(metric="all")
+    # Instantiate PredAnalyzer objects (with seg_dict if available)
+    analyzer_best = PredAnalyzer(model_info=model_info, adjusted=False, seg_dict=seg_dict_raw)
+    analyzer_best_adj = PredAnalyzer(model_info=model_info, adjusted=True, seg_dict=seg_dict_raw)
+
+    # Extract stats
+    stats_best_predicted = analyzer_best.extract_stats(metric="predicted")
+    stats_best_all = analyzer_best.extract_stats(metric="all")
+    stats_best_adj_predicted = analyzer_best_adj.extract_stats(metric="predicted")
+    stats_best_adj_all = analyzer_best_adj.extract_stats(metric="all")
 
     with pd.ExcelWriter(os.path.join(out_dir, "stats.xlsx")) as writer:
         stats_best_predicted.to_excel(writer, sheet_name="best_predicted", index=False)
         stats_best_all.to_excel(writer, sheet_name="best_all", index=False)
         stats_best_adj_predicted.to_excel(writer, sheet_name="best_adj_predicted", index=False)
         stats_best_adj_all.to_excel(writer, sheet_name="best_adj_all", index=False)
+
+    # GeoJSON export
+    if save_geojson and seg_dict_raw is not None:
+        import yaml
+        from hedest.utils import seg_dict_to_geojson, generate_color_dict
+
+        if color_dict_file is not None:
+            with open(color_dict_file, "r") as f:
+                color_dict = yaml.load(f)
+        else:
+            color_dict = generate_color_dict(ct_list, format="special")
+            auto_color_path = os.path.join(out_dir, "auto_color_dict.yaml")
+            with open(auto_color_path, "w") as f:
+                yaml.dump(color_dict, f)
+            logger.info(f"Auto-generated color dict saved to {auto_color_path}")
+
+        geojson_path_best = os.path.join(out_dir, "hedest_predictions.geojson")
+        geojson_path_best_adj = os.path.join(out_dir, "hedest_predictions_adj.geojson")
+
+        seg_dict_to_geojson(analyzer_best.seg_dict_w_class, geojson_path_best, color_dict=color_dict)
+        logger.info(f"GeoJSON (unadjusted) exported to {geojson_path_best}")
+
+        seg_dict_to_geojson(analyzer_best_adj.seg_dict_w_class, geojson_path_best_adj, color_dict=color_dict)
+        logger.info(f"GeoJSON (adjusted) exported to {geojson_path_best_adj}")
 
     logger.info("Secondary deconvolution process completed successfully.")
     logger.info(f"Training time: {TRAIN_TIME}")

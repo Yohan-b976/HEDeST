@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import pickle
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-from hedest.analysis.pred_analyzer import PredAnalyzer  # adjust import path if needed
-
-# Import PredAnalyzer the same way run_model.py does
+from hedest.analysis.pred_analyzer import PredAnalyzer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -45,7 +45,8 @@ def load_seed_info(run_dir: Path) -> list[dict]:
     return infos
 
 
-def aggregate_seeds(run_dir: Path):
+def aggregate_seeds(run_dir: Path, json_path: Optional[str] = None, color_dict_file: Optional[str] = None):
+
     infos = load_seed_info(run_dir)
 
     if not infos:
@@ -54,20 +55,15 @@ def aggregate_seeds(run_dir: Path):
 
     logger.info(f"Aggregating {len(infos)} seeds...")
 
-    # --- Extract predictions per seed ---
     preds_best = []
     preds_best_adjusted = []
-
     for info in infos:
-        # Use PredAnalyzer to access predictions consistently
         preds_best.append(PredAnalyzer(model_info=info, adjusted=False).predictions)
         preds_best_adjusted.append(PredAnalyzer(model_info=info, adjusted=True).predictions)
 
-    # --- Average across seeds ---
     avg_pred_best = np.mean(preds_best, axis=0)
     avg_pred_best_adjusted = np.mean(preds_best_adjusted, axis=0)
 
-    # Wrap back into DataFrames if predictions are DataFrames
     ref = infos[0]
     if isinstance(ref["preds"]["pred_best"], pd.DataFrame):
         avg_pred_best = pd.DataFrame(
@@ -81,7 +77,6 @@ def aggregate_seeds(run_dir: Path):
             columns=ref["preds"]["pred_best_adjusted"].columns,
         )
 
-    # --- Build aggregated model_info ---
     agg_info = {
         "model_name": ref["model_name"],
         "hidden_dims": ref["hidden_dims"],
@@ -96,17 +91,24 @@ def aggregate_seeds(run_dir: Path):
         },
     }
 
-    # --- Save aggregated info.pickle ---
     agg_pickle_path = run_dir / "info_aggregated.pickle"
     with open(agg_pickle_path, "wb") as f:
         pickle.dump(agg_info, f)
     logger.info(f"Saved aggregated info to {agg_pickle_path}")
 
-    # --- Extract and save aggregated stats.xlsx ---
-    stats_best_predicted = PredAnalyzer(model_info=agg_info, adjusted=False).extract_stats(metric="predicted")
-    stats_best_all = PredAnalyzer(model_info=agg_info, adjusted=False).extract_stats(metric="all")
-    stats_best_adj_predicted = PredAnalyzer(model_info=agg_info, adjusted=True).extract_stats(metric="predicted")
-    stats_best_adj_all = PredAnalyzer(model_info=agg_info, adjusted=True).extract_stats(metric="all")
+    # ── Stats ─────────────────────────────────────────────────────────────────
+    seg_dict_raw = None
+    if json_path is not None:
+        with open(json_path, "r") as f:
+            seg_dict_raw = json.load(f)
+
+    analyzer_best = PredAnalyzer(model_info=agg_info, adjusted=False, seg_dict=seg_dict_raw)
+    analyzer_best_adj = PredAnalyzer(model_info=agg_info, adjusted=True, seg_dict=seg_dict_raw)
+
+    stats_best_predicted = analyzer_best.extract_stats(metric="predicted")
+    stats_best_all = analyzer_best.extract_stats(metric="all")
+    stats_best_adj_predicted = analyzer_best_adj.extract_stats(metric="predicted")
+    stats_best_adj_all = analyzer_best_adj.extract_stats(metric="all")
 
     agg_stats_path = run_dir / "stats_aggregated.xlsx"
     with pd.ExcelWriter(agg_stats_path) as writer:
@@ -115,6 +117,37 @@ def aggregate_seeds(run_dir: Path):
         stats_best_adj_predicted.to_excel(writer, sheet_name="best_adj_predicted", index=False)
         stats_best_adj_all.to_excel(writer, sheet_name="best_adj_all", index=False)
     logger.info(f"Saved aggregated stats to {agg_stats_path}")
+
+    # ── GeoJSON export ────────────────────────────────────────────────────────
+    if seg_dict_raw is not None:
+        import yaml
+        from hedest.utils import seg_dict_to_geojson, generate_color_dict
+
+        ct_list = list(ref["proportions"].columns)
+
+        if color_dict_file is not None:
+            with open(color_dict_file, "r") as f:
+                color_dict = yaml.load(f)
+        else:
+            color_dict = generate_color_dict(ct_list, format="special")
+            auto_color_path = run_dir / "auto_color_dict.yaml"
+            with open(auto_color_path, "w") as f:
+                yaml.dump(color_dict, f)
+            logger.info(f"Auto-generated color dict saved to {auto_color_path}")
+
+        seg_dict_to_geojson(
+            analyzer_best.seg_dict_w_class,
+            str(run_dir / "hedest_predictions_aggregated.geojson"),
+            color_dict=color_dict,
+        )
+        logger.info(f"GeoJSON (unadjusted) exported to {run_dir / 'hedest_predictions_aggregated.geojson'}")
+
+        seg_dict_to_geojson(
+            analyzer_best_adj.seg_dict_w_class,
+            str(run_dir / "hedest_predictions_adj_aggregated.geojson"),
+            color_dict=color_dict,
+        )
+        logger.info(f"GeoJSON (adjusted) exported to {run_dir / 'hedest_predictions_adj_aggregated.geojson'}")
 
 
 if __name__ == "__main__":

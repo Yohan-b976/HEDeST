@@ -68,6 +68,8 @@ def main(
     train_size: float = typer.Option(0.7, help="Training set size as a fraction."),
     val_size: float = typer.Option(0.15, help="Validation set size as a fraction."),
     out_dir: str = typer.Option("results", help="Output directory."),
+    save_geojson: bool = typer.Option(False, help="Whether to export a GeoJSON file for QuPath."),
+    color_dict_file: Optional[str] = typer.Option(None, help="Path to a YAML color dict (special format)."),
     rs: int = typer.Option(42, help="Random seed"),
 ):
 
@@ -75,6 +77,8 @@ def main(
     path_st_adata = normalize_none(path_st_adata)
     adata_name = normalize_none(adata_name)
     spot_dict_file = normalize_none(spot_dict_file)
+    mpp = normalize_none(mpp)
+    color_dict_file = normalize_none(color_dict_file)
     hidden_dims = parse_hidden_dims(hidden_dims)
 
     # Validate inputs
@@ -188,6 +192,8 @@ def main(
         train_size=train_size,
         val_size=val_size,
         out_dir=out_dir,
+        save_geojson=save_geojson,
+        color_dict_file=color_dict_file,
         rs=rs,
     )
     TOTAL_TIME = format_time(time.time() - MAIN_START)
