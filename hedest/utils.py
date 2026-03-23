@@ -363,18 +363,21 @@ def rgba_to_colorRGB(rgba: Tuple) -> int:
     return value
 
 
-def build_color_lookup(color_dict: Dict) -> Dict[str, int]:
+def build_color_lookup(color_dict: Dict) -> Tuple[Dict[int, int], Dict[int, str]]:
     """
     Convert a color_dict in 'special' format:
         { "0": ["TypeName", [R, G, B, A]], ... }
-    into a lookup:
-        { "TypeName": colorRGB_int }
+    into:
+        - color_lookup:  { 0: colorRGB_int, 1: colorRGB_int, ... }
+        - name_lookup:   { 0: "TypeName", 1: "TypeName", ... }
     """
-
-    lookup = {}
-    for _, (class_name, rgba) in color_dict.items():
-        lookup[class_name] = rgba_to_colorRGB(rgba)
-    return lookup
+    color_lookup = {}
+    name_lookup = {}
+    for key, (class_name, rgb) in color_dict.items():
+        idx = int(key)
+        color_lookup[idx] = rgba_to_colorRGB(rgb)
+        name_lookup[idx] = class_name
+    return color_lookup, name_lookup
 
 
 def seg_dict_to_geojson(
@@ -403,8 +406,10 @@ def seg_dict_to_geojson(
 
     # Build name -> colorRGB lookup
     color_lookup: Dict[str, int] = {}
+    name_lookup: Dict[int, str] = {}
+
     if color_dict is not None:
-        color_lookup = build_color_lookup(color_dict)
+        color_lookup, name_lookup = build_color_lookup(color_dict)
 
     features = []
     skipped = 0
@@ -425,11 +430,10 @@ def seg_dict_to_geojson(
         elif poly.geom_type != "Polygon":
             poly = poly.convex_hull
 
-        cell_type = cell_info.get("type", "Unknown")
-        # Normalise to string for lookup (handles both int and str types)
-        cell_type_str = str(cell_type)
-
-        color_rgb = color_lookup.get(cell_type_str, -1)  # default: white
+        cell_type = cell_info.get("type", 0)
+        cell_type_int = int(cell_type)
+        cell_type_name = name_lookup.get(cell_type_int, f"Type_{cell_type_int}")
+        color_rgb = color_lookup.get(cell_type_int, -1)
 
         features.append(
             {
@@ -441,12 +445,12 @@ def seg_dict_to_geojson(
                 "properties": {
                     "object_type": "detection",
                     "classification": {
-                        "name": cell_type_str,
+                        "name": cell_type_name,  # human-readable name for QuPath
                         "colorRGB": color_rgb,
                     },
                     "isLocked": False,
                     "cell_id": str(cell_id),
-                    "cell_type": cell_type_str,
+                    "cell_type": cell_type_int,
                     "type_prob": cell_info.get("type_prob", None),
                 },
             }

@@ -127,7 +127,7 @@ def aggregate_seeds(run_dir: Path, json_path: Optional[str] = None, color_dict_f
 
         if color_dict_file is not None:
             with open(color_dict_file, "r") as f:
-                color_dict = yaml.load(f)
+                color_dict = yaml.safe_load(f)
         else:
             color_dict = generate_color_dict(ct_list, format="special")
             auto_color_path = run_dir / "auto_color_dict.yaml"
