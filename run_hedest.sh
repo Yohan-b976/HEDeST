@@ -14,7 +14,7 @@ conda activate plugin-env
 
 export LD_LIBRARY_PATH=/cluster/CBIO/home/lgortana/anaconda3/envs/plugin-env/lib:$LD_LIBRARY_PATH
 
-for seed in {0..4}; do
+for seed in {0..9}; do
   python3 -u hedest/main.py \
     /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/moco_embed_BRCA_64px_20um.pt \
     case_study/DestVI_BRCA_prop.csv \
@@ -35,11 +35,5 @@ for seed in {0..4}; do
     --val-size 0.1 \
     --out-dir models/BRCA-test/DestVI_4000_hvg_squash_06_02_large/model_default_hidden_dim_512-256_norm_True_dropout_0.0_alpha_0.0_lr_0.0001_divergence_l2_beta_0.0/seed_${seed} \
     --save-geojson \
-    --color-dict-file /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/colors_dict.yaml \
     --rs $seed
 done
-
-python3 -u hedest/aggregate_seeds.py \
-        --run-dir models/BRCA-test/DestVI_4000_hvg_squash_06_02_large/model_default_hidden_dim_512-256_norm_True_dropout_0.0_alpha_0.0_lr_0.0001_divergence_l2_beta_0.0 \
-        --json-path /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/seg_json/pannuke_fast_mask_lvl3.json \
-        --color-dict-file /cluster/CBIO/data1/lgortana/Visium_FFPE_Human_Breast_Cancer/colors_dict.yaml
