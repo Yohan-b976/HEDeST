@@ -152,7 +152,13 @@ def aggregate_seeds(run_dir: Path, json_path: Optional[str] = None, color_dict_f
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("HEDeST Seed Aggregator")
-    parser.add_argument("--run-dir", type=Path, required=True, help="Path to the RUN_OUT directory")
+    parser.add_argument("--run-dir", type=Path, required=True)
+    parser.add_argument("--json-path", type=str, default=None)
+    parser.add_argument("--color-dict-file", type=str, default=None)
     args = parser.parse_args()
 
-    aggregate_seeds(args.run_dir)
+    aggregate_seeds(
+        run_dir=args.run_dir,
+        json_path=args.json_path,
+        color_dict_file=args.color_dict_file,
+    )
