@@ -59,7 +59,7 @@ Arguments for processing wsi
 usage:
     wsi (--input_dir=<path>) (--output_dir=<path>) (--image_dict_path=<path>) \
         [--input_mask_dir=<path>] [--cache_path=<path>] [--proc_mag=<n>] [--ambiguous_size=<n>] \
-        [--chunk_shape=<n>] [--tile_shape=<n>] [--save_thumb] [--save_mask]
+        [--chunk_shape=<n>] [--tile_shape=<n>] [--save_thumb] [--save_mask] [--save_geojson]
 
 options:
     --input_dir=<path>       Path to input data directory. Assumes the files are not nested within directory.
