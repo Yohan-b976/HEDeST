@@ -16,12 +16,12 @@ export LD_LIBRARY_PATH=/cluster/CBIO/home/ybeaumatin/miniconda3/envs/hedest-env/
 
 
 python3 -u hedest/main.py \
-  /cluster/CBIO/data1/ybeaumatin/Visium_FFPE_Human_Breast_Cancer/moco_embed_BRCA_64px_20um.pt \
-  case_study/DestVI_BRCA_prop.csv \
-  --json-path /cluster/CBIO/data1/ybeaumatin/Visium_FFPE_Human_Breast_Cancer/seg_json/pannuke_fast_mask_lvl3.json \
-  --path-st-adata /cluster/CBIO/data1/ybeaumatin/Visium_FFPE_Human_Breast_Cancer/adata.h5ad \
-  --adata-name Visium_FFPE_Human_Breast_Cancer \
-  --spot-dict-file /cluster/CBIO/data1/ybeaumatin/Visium_FFPE_Human_Breast_Cancer/spot_dict.json \
+  /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/moco_embed_HB_64px_20um.pt \
+  /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/sim_Xenium_FFPE_Human_Breast_Cancer_Rep1_prop_real.csv \
+  --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/pannuke_fast_mask_lvl3_annotated.json \
+  --path-st-adata /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/pseudo_adata_real.h5ad \
+  --adata-name Xenium_FFPE_Human_Breast_Cancer_Rep1 \
+  --spot-dict-file /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/spot_dict_adjust_real.json \
   --model-name default \
   --norm \
   --dropout 0.0 \
@@ -33,7 +33,7 @@ python3 -u hedest/main.py \
   --epochs 100 \
   --train-size 0.8 \
   --val-size 0.1 \
-  --out-dir models/BRCA-test/DestVI_4000_hvg_squash_06_02_large/model_default_hidden_dim_512-256_norm_True_dropout_0.0_alpha_0.0_lr_0.0001_divergence_l2_beta_0.0 \
+  --out-dir models/Xenium_FFPE/Test1/model_default_hidden_dim_512-256_norm_True_dropout_0.0_alpha_0.0_lr_0.0001_divergence_l2_beta_0.0 \
   --save-geojson \
   --rs 42
 
