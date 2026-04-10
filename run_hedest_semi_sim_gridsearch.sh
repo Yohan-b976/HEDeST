@@ -4,13 +4,6 @@
 # Arguments for GPU job
 # ---------------------
 
-echo 'Found a place!'
-
-source /cluster/CBIO/home/ybeaumatin/miniconda3/etc/profile.d/conda.sh
-conda activate hedest-env
-
-export LD_LIBRARY_PATH=/cluster/CBIO/home/ybeaumatin/miniconda3/envs/hedest-env/lib:$LD_LIBRARY_PATH
-
 IMAGE_DICT="/cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/moco_embed_HB_64px_20um.pt"
 SIM_CSV="/cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/sim_Xenium_FFPE_Human_Breast_Cancer_Rep1_prop_real.csv"
 JSON_PATH="/cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/pannuke_fast_mask_lvl3_annotated.json"
@@ -18,7 +11,7 @@ ADATA_PATH="/cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/
 ADATA_NAME="Xenium_FFPE_Human_Breast_Cancer_Rep1"
 SPOT_DICT="/cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/spot_dict_adjust_real.json"
 
-SEED_LIST=($(seq 0 2))
+SEED_LIST=$(seq 0 2)
 
 GPU_EXTRA_ARGS=(
     --models default
@@ -27,9 +20,9 @@ GPU_EXTRA_ARGS=(
     --dropouts 0.0 0.1
     --alphas 0 0.001 0.01 0.1
     --betas 0
-    --learning_rates 1e-4 3e-4 1e-3
+    --learning_rates 1e-4 3e-4 1e-3 3e-3
     --divergences kl l2
-    --seeds "${SEED_LIST[@]}"
+    --seeds $SEED_LIST
     --batch_size 64
     --out_dir models/simulations-v2/moco-64px-20um-semi-sim-HL-7types
 )
