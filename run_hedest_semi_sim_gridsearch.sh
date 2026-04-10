@@ -20,7 +20,7 @@ GPU_EXTRA_ARGS=(
     --dropouts 0.0 0.1
     --alphas 0 0.001 0.01 0.1
     --betas 0
-    --learning_rates 1e-4 3e-4 1e-3
+    --learning_rates 1e-4 3e-4 1e-3 3e-3
     --divergences kl l2
     --seeds $SEED_LIST
     --batch_size 64
