@@ -3,7 +3,7 @@
 #SBATCH --output=/cluster/CBIO/home/ybeaumatin/HEDeST/log/submit_hedest_%j.log
 #SBATCH --error=/cluster/CBIO/home/ybeaumatin/HEDeST/log/submit_hedest_%j.err
 #SBATCH --cpus-per-task=1
-#SBATCH -p cbio
+#SBATCH -p cbio-gpu
 
 echo 'Submitting HEDeST pipeline...'
 
