@@ -1,19 +1,19 @@
 #!/bin/bash
 
 #SBATCH --job-name=HEDeST
-#SBATCH --output=/cluster/CBIO/home/lgortana/HEDeST/log/gridsearch_%j.log
-#SBATCH --error=/cluster/CBIO/home/lgortana/HEDeST/log/gridsearch_%j.err
+#SBATCH --output=/cluster/CBIO/home/ybeaumatin/HEDeST/log/hedest_%j.log
+#SBATCH --error=/cluster/CBIO/home/ybeaumatin/HEDeST/log/hedest_%j.err
 #SBATCH --gres=gpu:1
 #SBATCH -p cbio-gpu
 #SBATCH --exclude=node005,node006,node009
 #SBATCH --cpus-per-task=8
 
-echo "Found a place!"
+echo 'Found a place!'
 
-source /cluster/CBIO/home/lgortana/anaconda3/etc/profile.d/conda.sh
-conda activate plugin-env
+source /cluster/CBIO/home/ybeaumatin/miniconda3/etc/profile.d/conda.sh
+conda activate hedest-env
 
-export LD_LIBRARY_PATH=/cluster/CBIO/home/lgortana/anaconda3/envs/plugin-env/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/cluster/CBIO/home/ybeaumatin/miniconda3/envs/hedest-env/lib:$LD_LIBRARY_PATH
 
 IMAGE_DICT=$1
 SIM_CSV=$2
