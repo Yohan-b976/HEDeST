@@ -17,11 +17,11 @@ export LD_LIBRARY_PATH=/cluster/CBIO/home/ybeaumatin/miniconda3/envs/hedest-env/
 for seed in {0..9}; do
   python3 -u hedest/main.py \
     /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/moco_embed_HB_64px_20um.pt \
-    /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv0/proportions.csv \
-    --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv0/seg_dict.json \
+    /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv1/proportions.csv \
+    --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv1/seg_dict.json \
     --path-st-adata /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/sim/pseudo_adata_real.h5ad \
     --adata-name Visium_FFPE_Human_Breast_Cancer \
-    --spot-dict-file /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv0/spot_dict.json \
+    --spot-dict-file /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv1/spot_dict.json \
     --model-name default \
     --norm \
     --dropout 0.0 \
