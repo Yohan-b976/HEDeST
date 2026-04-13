@@ -17,11 +17,11 @@ export LD_LIBRARY_PATH=/cluster/CBIO/home/ybeaumatin/miniconda3/envs/hedest-env/
 for seed in {0..9}; do
   python3 -u hedest/main.py \
     /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/sim/LuCA/moco_embed_HL_64px_20um.pt \
-    /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv0/proportions.csv \
-    --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv0/seg_dict.json \
+    /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv1/proportions.csv \
+    --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv1/seg_dict.json \
     --path-st-adata /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/sim/LuCA/pseudo_adata_real.h5ad \
     --adata-name Xenium_V1_humanLung_Cancer_FFPE \
-    --spot-dict-file /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv0/spot_dict.json \
+    --spot-dict-file /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv1/spot_dict.json \
     --model-name default \
     --norm \
     --dropout 0.0 \
@@ -33,7 +33,7 @@ for seed in {0..9}; do
     --epochs 100 \
     --train-size 0.8 \
     --val-size 0.1 \
-    --out-dir models/Xenium_V1_humanLung_hierarchical_lv0/seed_${seed} \
+    --out-dir models/Xenium_V1_humanLung_hierarchical_lv1/seed_${seed} \
     --save-geojson \
     --rs $seed
 done
