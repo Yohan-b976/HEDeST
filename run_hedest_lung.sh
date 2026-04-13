@@ -19,7 +19,7 @@ for seed in {0..9}; do
     /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/sim/LuCA/moco_embed_HL_64px_20um.pt \
     /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv0/proportions.csv \
     --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv0/seg_dict.json \
-    --path-st-adata /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/sim/pseudo_adata_real.h5ad \
+    --path-st-adata /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/sim/LuCA/pseudo_adata_real.h5ad \
     --adata-name Xenium_V1_humanLung_Cancer_FFPE \
     --spot-dict-file /cluster/CBIO/data1/ybeaumatin/Xenium_V1_humanLung_Cancer_FFPE/hier_sim/lv0/spot_dict.json \
     --model-name default \
