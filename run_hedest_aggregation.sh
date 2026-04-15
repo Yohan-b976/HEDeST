@@ -15,6 +15,6 @@ conda activate hedest-env
 export LD_LIBRARY_PATH=/cluster/CBIO/home/ybeaumatin/miniconda3/envs/hedest-env/lib:$LD_LIBRARY_PATH
 
 python3 -u hedest/aggregate_seeds.py \
-    --run-dir /cluster/CBIO/home/ybeaumatin/HEDeST/models/Xenium_FFPE_hierarchical_lv0 \
-    --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv0/seg_dict.json \
+    --run-dir /cluster/CBIO/home/ybeaumatin/HEDeST/models/Xenium_FFPE_hierarchical_lv1 \
+    --json-path /cluster/CBIO/data1/ybeaumatin/Xenium_FFPE_Human_Breast_Cancer_Rep1/hier_sim/lv1/seg_dict.json \
 
